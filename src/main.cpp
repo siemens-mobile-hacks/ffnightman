@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
             ("p,path", "Destination path. Data_<Model>_<IMEI> by default", cxxopts::value<std::string>())
             ("m,platform", "Specify platform (disable autodetect).\n[ " + supported_platforms + "]" , cxxopts::value<std::string>())
             ("ffpath", "fullflash path", cxxopts::value<std::string>())
-            ("o,overwrite", "Always delete data directory if extsits")
+            ("o,overwrite", "Always delete data directory if exists")
             ("h,help", "Help");
 
         options.parse_positional({"ffpath"});
