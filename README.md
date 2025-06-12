@@ -12,7 +12,7 @@
 * X55
 
 ## Как это использовать
-```./ffshit <options> <fullflash path>```
+```./ffnightman <options> <fullflash path>```
 
 ### Параметры:
 
