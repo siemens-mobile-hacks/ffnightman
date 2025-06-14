@@ -13,7 +13,7 @@ Extractor::Extractor(FULLFLASH::Blocks &blocks, FULLFLASH::Platform platform) : 
     if (filesystem) {
         filesystem->load();
     } else {
-        spdlog::error("fs == nullptr o_O");
+        throw FULLFLASH::Exception("fs == nullptr o_O");
     }
 }
 
