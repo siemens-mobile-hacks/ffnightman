@@ -24,8 +24,10 @@ int main(int argc, char *argv[]) {
     std::string ff_path;
     std::string override_dst_path;
     std::string override_platform;
+
     bool        is_debug        = false;
     bool        is_overwrite    = false;
+    bool        is_scan_only    = false;
 
     try {
         std::string supported_platforms;
@@ -39,6 +41,7 @@ int main(int argc, char *argv[]) {
             ("p,path", "Destination path. Data_<Model>_<IMEI> by default", cxxopts::value<std::string>())
             ("m,platform", "Specify platform (disable autodetect).\n[ " + supported_platforms + "]" , cxxopts::value<std::string>())
             ("ffpath", "fullflash path", cxxopts::value<std::string>())
+            ("s,scan", "fullflash scanning for debugging purposes only")
             ("o,overwrite", "Always delete data directory if exists")
             ("h,help", "Help");
 
@@ -82,6 +85,10 @@ int main(int argc, char *argv[]) {
 
         if (parsed.count("o")) {
             is_overwrite = true;
+        }
+
+        if (parsed.count("s")) {
+            is_scan_only = true;
         }
     } catch (const cxxopts::exceptions::exception &e) {
         spdlog::error("{}", e.what());
@@ -135,8 +142,10 @@ int main(int argc, char *argv[]) {
 
         Extractor extractor(*blocks, platform);
 
-        extractor.extract(data_path, is_overwrite);
-
+        if (!is_scan_only) {
+            extractor.extract(data_path, is_overwrite);
+        }
+        
         spdlog::info("Done");
 
     } catch (const FULLFLASH::Exception &e) {

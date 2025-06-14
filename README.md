@@ -26,6 +26,7 @@ Usage:
   -p, --path arg      Destination path. Data_<Model>_<IMEI> by default
   -m, --platform arg  Specify platform (disable autodetect).
                       [ X85 X75 X65 ]
+  -s, --scan          fullflash scanning for debugging purposes only
   -o, --overwrite     Always delete data directory if exists
   -h, --help          Help
 ```
