@@ -1,4 +1,5 @@
 #include "extractor.h"
+#include "help.h"
 
 #include <ffshit/system.h>
 #include <ffshit/filesystem/platform/builder.h>
@@ -20,22 +21,17 @@ void Extractor::extract(std::string path, bool overwrite) {
     spdlog::info("Extracting filesystem");
 
     if (System::is_file_exists(path)) {
-        std::string yes_no;
+        bool is_delete = false;
 
         if (overwrite) {
-            yes_no = "y";
+            is_delete = true;
         } else {
-            while (yes_no != "n" && yes_no != "y") {
+            is_delete = Help::input_yn([&]() {
                 spdlog::warn("'{}' is regular file. Delete? (y/n)", path);
-
-                yes_no.clear();
-                std::cin >> yes_no;
-
-                System::to_lower(yes_no);
-            }
+            });
         }
 
-        if (yes_no == "y") {
+        if (is_delete) {
             bool r = System::remove_directory(path);
 
             if (!r) {
@@ -44,27 +40,21 @@ void Extractor::extract(std::string path, bool overwrite) {
         } else {
             return;
         }
-
     }
 
     if (System::is_directory_exists(path)) {
-        std::string yes_no;
+        bool is_delete = false;
 
         if (overwrite) {
-            yes_no = "y";
+            is_delete = true;
         } else {
-            while (yes_no != "n" && yes_no != "y") {
+            is_delete = Help::input_yn([&]() {
                 spdlog::warn("Directory '{}' already exists. Delete? (y/n)", path);
-
-                yes_no.clear();
-                std::cin >> yes_no;
-                std::transform(yes_no.begin(), yes_no.end(), yes_no.begin(), [](unsigned char c){ 
-                    return std::tolower(c); 
-                });
-            }
+            });
         }
 
-        if (yes_no == "y") {
+
+        if (is_delete) {
             bool r = System::remove_directory(path);
 
             if (!r) {

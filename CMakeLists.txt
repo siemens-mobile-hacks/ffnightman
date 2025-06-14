@@ -15,6 +15,7 @@ include_directories(
 )
 
 set(SRC_LIST 
+    src/help.cpp
     src/extractor.cpp
     src/main.cpp)
 
