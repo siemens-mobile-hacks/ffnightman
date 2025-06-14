@@ -15,6 +15,7 @@ include_directories(
 )
 
 set(SRC_LIST 
+    src/extractor.cpp
     src/main.cpp)
 
 set(CMAKE_CXX_FLAGS_DEBUG "-g")

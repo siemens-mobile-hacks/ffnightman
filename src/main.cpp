@@ -1,19 +1,23 @@
 #include <ffshit/blocks.h>
-#include "ffshit/ex.h"
+#include <ffshit/ex.h>
 
-#include "ffshit/system.h"
-
-#include "ffshit/filesystem/ex.h"
-#include "ffshit/filesystem/sgold.h"
-#include "ffshit/filesystem/newsgold.h"
-#include "ffshit/filesystem/newsgold_x85.h"
+#include <ffshit/system.h>
+#include <ffshit/log/logger.h>
+#include <ffshit/filesystem/ex.h>
 
 #include <spdlog/spdlog.h>
 #include "thirdparty/cxxopts.hpp"
 
+#include "log/interface.h"
+#include "extractor.h"
+
+Log::Interface::Ptr log_inerface_ptr = Log::Interface::build();
+
 int main(int argc, char *argv[]) {
     // spdlog::set_pattern("\033[30;1m[%H:%M:%S.%e]\033[0;39m %^[%=8l]%$ \033[1;37m%v\033[0;39m");
     spdlog::set_pattern("[%H:%M:%S.%e] %^[%=8l]%$ %v");
+
+    FULLFLASH::Log::Logger::init(log_inerface_ptr);
 
     cxxopts::Options options(argv[0], "Siemens filesystem extractor");
 
@@ -129,25 +133,12 @@ int main(int argc, char *argv[]) {
             blocks->print();
         }
 
-        FULLFLASH::Filesystem::Base::Ptr    fs;
+        Extractor extractor(*blocks, platform);
 
-        switch(platform) {
-            case FULLFLASH::Platform::X65: fs = FULLFLASH::Filesystem::SGOLD::build(*blocks); break;
-            case FULLFLASH::Platform::X75: fs = FULLFLASH::Filesystem::NewSGOLD::build(*blocks); break;
-            case FULLFLASH::Platform::X85: fs = FULLFLASH::Filesystem::NewSGOLD_X85::build(*blocks); break;
-            // case FULLFLASH::Platform::X85:
-            case FULLFLASH::Platform::UNK: {
-                throw FULLFLASH::Exception("Unknown platform");
-            }
-        }
+        extractor.extract(data_path, is_overwrite);
 
-        if (fs) {
-            fs->load();
-            fs->extract(data_path, is_overwrite);
-            spdlog::info("Done");
-        } else {
-            spdlog::error("fs == nullptr o_O");
-        }
+        spdlog::info("Done");
+
     } catch (const FULLFLASH::Exception &e) {
         spdlog::error("{}", e.what());
     } catch (const FULLFLASH::Filesystem::Exception &e) {
