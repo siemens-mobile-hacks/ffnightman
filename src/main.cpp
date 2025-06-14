@@ -10,6 +10,7 @@
 
 #include "log/interface.h"
 #include "extractor.h"
+#include "help.h"
 
 Log::Interface::Ptr log_inerface_ptr = Log::Interface::build();
 
@@ -136,6 +137,18 @@ int main(int argc, char *argv[]) {
             data_path = override_dst_path;
         }
 
+        if (platform == FULLFLASH::Platform::X85 && !is_scan_only) {
+            bool is_continue = false;
+
+            is_continue = Help::input_yn([]() {
+                spdlog::warn("X85 platform unsupported yet. Continue (y/n)?");
+            });
+
+            if (!is_continue) {
+                return EXIT_SUCCESS;
+            }
+        }
+
         if (is_debug) {
             blocks->print();
         }
@@ -145,7 +158,7 @@ int main(int argc, char *argv[]) {
         if (!is_scan_only) {
             extractor.extract(data_path, is_overwrite);
         }
-        
+
         spdlog::info("Done");
 
     } catch (const FULLFLASH::Exception &e) {
