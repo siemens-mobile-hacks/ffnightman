@@ -129,12 +129,16 @@ int main(int argc, char *argv[]) {
             spdlog::info("IMEI:     {}", imei);
         }
 
-        std::string data_path = fmt::format("./Data_{}_{}", model, imei);
+        std::filesystem::path data_path;// std::filesystem::current_path();
+
+        data_path.append(fmt::format("Data_{}_{}", model, imei));
 
         if (override_dst_path.length() != 0) {
-            spdlog::warn("Destination path override '{}' -> '{}'", data_path, override_dst_path);
+            spdlog::warn("Destination path override '{}' -> '{}'", data_path.string(), override_dst_path);
 
             data_path = override_dst_path;
+        } else {
+            spdlog::info("Destination path: {}", data_path.string());
         }
 
         if (platform == FULLFLASH::Platform::X85 && !is_scan_only) {

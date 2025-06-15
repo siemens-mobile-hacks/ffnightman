@@ -3,13 +3,15 @@
 
 #include <ffshit/filesystem/platform/platform.h>
 
+#include <filesystem>
+
 class Extractor {
     public:
         Extractor() = delete;
         Extractor(FULLFLASH::Blocks &blocks, FULLFLASH::Platform platform);
 
-        void                                extract(std::string path, bool overwrite);
-        void                                unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::string path = "/");
+        void                                extract(std::filesystem::path, bool overwrite);
+        void                                unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::filesystem::path path);
 
     private:
         FULLFLASH::Blocks &                 blocks;

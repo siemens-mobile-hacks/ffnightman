@@ -17,7 +17,7 @@ Extractor::Extractor(FULLFLASH::Blocks &blocks, FULLFLASH::Platform platform) : 
     }
 }
 
-void Extractor::extract(std::string path, bool overwrite) {
+void Extractor::extract(std::filesystem::path path, bool overwrite) {
     spdlog::info("Extracting filesystem");
 
     if (System::is_file_exists(path)) {
@@ -27,7 +27,7 @@ void Extractor::extract(std::string path, bool overwrite) {
             is_delete = true;
         } else {
             is_delete = Help::input_yn([&]() {
-                spdlog::warn("'{}' is regular file. Delete? (y/n)", path);
+                spdlog::warn("'{}' is regular file. Delete? (y/n)", path.string());
             });
         }
 
@@ -35,7 +35,7 @@ void Extractor::extract(std::string path, bool overwrite) {
             bool r = System::remove_directory(path);
 
             if (!r) {
-                throw FULLFLASH::Exception("Couldn't delete directory '{}'", path);
+                throw FULLFLASH::Exception("Couldn't delete directory '{}'", path.string());
             }
         } else {
             return;
@@ -49,7 +49,7 @@ void Extractor::extract(std::string path, bool overwrite) {
             is_delete = true;
         } else {
             is_delete = Help::input_yn([&]() {
-                spdlog::warn("Directory '{}' already exists. Delete? (y/n)", path);
+                spdlog::warn("Directory '{}' already exists. Delete? (y/n)", path.string());
             });
         }
 
@@ -58,7 +58,7 @@ void Extractor::extract(std::string path, bool overwrite) {
             bool r = System::remove_directory(path);
 
             if (!r) {
-                throw FULLFLASH::Exception("Couldn't delete directory '{}'", path);
+                throw FULLFLASH::Exception("Couldn't delete directory '{}'", path.string());
             }
         } else {
             return;
@@ -71,7 +71,7 @@ void Extractor::extract(std::string path, bool overwrite) {
                         std::filesystem::perms::others_read | std::filesystem::perms::others_exec);
 
     if (!r) {
-        throw FULLFLASH::Exception("Couldn't create directory '{}'", path);
+        throw FULLFLASH::Exception("Couldn't create directory '{}'", path.string());
     }
 
     const auto &fs_map = filesystem->get_filesystem_map();
@@ -82,18 +82,22 @@ void Extractor::extract(std::string path, bool overwrite) {
 
         spdlog::info("Extracting {}", fs_name);
 
-        unpack(root, path + "/" + fs_name);
+        std::filesystem::path dir(path);
+
+        dir.append(fs_name);
+
+        unpack(root, dir);
     };
 }
 
-void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::string path) {
+void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::filesystem::path path) {
     bool r = System::create_directory(path, 
                     std::filesystem::perms::owner_read | std::filesystem::perms::owner_write | std::filesystem::perms::owner_exec |
                     std::filesystem::perms::group_read | std::filesystem::perms::group_exec |
                     std::filesystem::perms::others_read | std::filesystem::perms::others_exec);
 
     if (!r) {
-        throw FULLFLASH::Exception("Couldn't create directory '{}'", path);
+        throw FULLFLASH::Exception("Couldn't create directory '{}'", path.string());
     }
 
     const auto &subdirs = dir->get_subdirs();
@@ -104,15 +108,17 @@ void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::string pa
             continue;
         }
 
-        std::string     file_path = path + "/" + file->get_name();
-        std::ofstream   file_stream;
+        std::filesystem::path   file_path(path);
+        std::ofstream           file_stream;
 
-        spdlog::info("  Extracting {}", file_path);
+        file_path.append(file->get_name());
 
-        file_stream.open(file_path, std::ios_base::binary | std::ios_base::trunc);
+        spdlog::info("  Extracting {}", file_path.string());
+
+        file_stream.open(file_path.string(), std::ios_base::binary | std::ios_base::trunc);
 
         if (!file_stream.is_open()) {
-            throw FULLFLASH::Exception("Couldn't create file '{}': {}", file_path, strerror(errno));
+            throw FULLFLASH::Exception("Couldn't create file '{}': {}", file_path.string(), strerror(errno));
         }
 
         file_stream.write(file->get_data().get_data().get(), file->get_data().get_size());
@@ -121,7 +127,11 @@ void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::string pa
     }
 
     for (const auto &subdir : subdirs) {
-        unpack(subdir, path + "/" + subdir->get_name());
+        std::filesystem::path dir(path);
+
+        dir.append(subdir->get_name());
+
+        unpack(subdir, dir);
     }
 
 }
