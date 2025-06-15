@@ -80,7 +80,7 @@ void Extractor::extract(std::filesystem::path path, bool overwrite) {
         std::string fs_name = fs.first;
         auto root           = fs.second;
 
-        spdlog::info("Extracting {}", fs_name);
+        spdlog::info("Extracting partition {}", fs_name);
 
         std::filesystem::path dir(path);
 
@@ -113,7 +113,7 @@ void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::filesyste
 
         file_path.append(file->get_name());
 
-        spdlog::info("  Extracting {}", file_path.string());
+        spdlog::info("  File      {}", file_path.string());
 
         file_stream.open(file_path.string(), std::ios_base::binary | std::ios_base::trunc);
 
@@ -130,6 +130,7 @@ void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::filesyste
         std::filesystem::path dir(path);
 
         dir.append(subdir->get_name());
+        spdlog::info("  Directory {}", dir.string());
 
         unpack(subdir, dir);
     }
