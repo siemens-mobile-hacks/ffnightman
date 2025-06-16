@@ -6,9 +6,15 @@
 
 #include <iostream>
 #include <spdlog/spdlog.h>
+Extractor::Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLASH::Platform platform) :
+    partitions(partitions) {
+    
+    if (!partitions) {
+        throw FULLFLASH::Exception("partitions == nullptr o_O");
 
-Extractor::Extractor(FULLFLASH::Blocks &blocks, FULLFLASH::Platform platform) : blocks(blocks) {
-    filesystem = FULLFLASH::Filesystem::build(platform, blocks);
+    }
+
+    filesystem = FULLFLASH::Filesystem::build(platform, partitions);
 
     if (filesystem) {
         filesystem->load();
@@ -16,6 +22,16 @@ Extractor::Extractor(FULLFLASH::Blocks &blocks, FULLFLASH::Platform platform) : 
         throw FULLFLASH::Exception("fs == nullptr o_O");
     }
 }
+
+// Extractor::Extractor(FULLFLASH::Blocks &blocks, FULLFLASH::Platform platform) : blocks(blocks) {
+//     filesystem = FULLFLASH::Filesystem::build(platform, blocks);
+
+//     if (filesystem) {
+//         filesystem->load();
+//     } else {
+//         throw FULLFLASH::Exception("fs == nullptr o_O");
+//     }
+// }
 
 void Extractor::extract(std::filesystem::path path, bool overwrite) {
     spdlog::info("Extracting filesystem");
