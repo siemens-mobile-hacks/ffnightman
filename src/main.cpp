@@ -48,9 +48,13 @@ int main(int argc, char *argv[]) {
     std::string override_dst_path;
     std::string override_platform;
 
-    bool        is_debug        = false;
-    bool        is_overwrite    = false;
-    bool        is_scan_only    = false;
+    bool        is_debug                    = false;
+    bool        is_overwrite                = false;
+    bool        is_scan_only                = false;
+    bool        is_old_search_algorithm     = false;
+    bool        is_partitions_search_only   = false;
+    bool        is_search_address_set       = false;
+    uint32_t    search_start_adddress       = 0;
 
     try {
         std::string supported_platforms;
@@ -63,7 +67,10 @@ int main(int argc, char *argv[]) {
             ("d,debug", "Enable debugging")
             ("p,path", "Destination path. Data_<Model>_<IMEI> by default", cxxopts::value<std::string>())
             ("m,platform", "Specify platform (disable autodetect).\n[ " + supported_platforms + "]" , cxxopts::value<std::string>())
+            ("start-addr", "Partition search start address (hex)\nBy default:\nX65: 0x00800000\nX75: 0x004C0000", cxxopts::value<std::string>())
+            ("old", "Old search algorithm")
             ("ffpath", "fullflash path", cxxopts::value<std::string>())
+            ("f,partitions", "partitions search for debugging purposes only")
             ("s,scan", "fullflash scanning for debugging purposes only")
             ("o,overwrite", "Always delete data directory if exists")
             ("h,help", "Help");
@@ -113,8 +120,30 @@ int main(int argc, char *argv[]) {
         if (parsed.count("s")) {
             is_scan_only = true;
         }
+
+        if (parsed.count("old")) {
+            is_old_search_algorithm = true;
+        }
+
+        if (parsed.count("f")) {
+            is_partitions_search_only = true;
+        }
+
+        if (parsed.count("start-addr")) {
+            is_search_address_set = true;
+
+            std::string hex_str = parsed["start-addr"].as<std::string>();
+
+            search_start_adddress = std::stoi(hex_str, nullptr, 16);
+        }
     } catch (const cxxopts::exceptions::exception &e) {
         spdlog::error("{}", e.what());
+
+        return EXIT_FAILURE;
+    } catch (const std::invalid_argument &e) {
+        spdlog::error("Incorrect value");
+
+        return EXIT_FAILURE;
     }
 
     if (is_debug) {
@@ -131,9 +160,9 @@ int main(int argc, char *argv[]) {
         if (override_platform.length()) {
             platform    = FULLFLASH::StringToPlatform.at(override_platform);
 
-            partitions = FULLFLASH::Partitions::Partitions::build(ff_path, platform);
+            partitions = FULLFLASH::Partitions::Partitions::build(ff_path, platform, is_old_search_algorithm, is_search_address_set, search_start_adddress);
         } else {
-            partitions = FULLFLASH::Partitions::Partitions::build(ff_path);
+            partitions = FULLFLASH::Partitions::Partitions::build(ff_path, is_old_search_algorithm, is_search_address_set, search_start_adddress);
 
             platform    = partitions->get_platform();
             imei        = partitions->get_imei();
@@ -148,6 +177,10 @@ int main(int argc, char *argv[]) {
 
         if (imei.length()) {
             spdlog::info("IMEI:     {}", imei);
+        }
+
+        if (is_partitions_search_only) {
+            return EXIT_SUCCESS;
         }
 
         if (is_debug) {
