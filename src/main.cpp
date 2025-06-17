@@ -36,7 +36,32 @@ void dump_partitions_info(const FULLFLASH::Partitions::Partitions &partitions) {
     }
 }
 
+void set_locale() {
+    auto curr_locale = std::setlocale(LC_ALL, NULL);
+
+    if (!curr_locale) {
+        spdlog::warn("Couldn't get current locale");
+
+        return;
+    }
+
+    if (std::string(curr_locale) == "C") {
+        spdlog::warn("Current locale is C. Trying set to ru_RU.UTF-8");
+
+        const char* const locale_mame = "ru_RI.UTF-8";
+        if (!std::setlocale(LC_ALL, locale_mame)) {
+            spdlog::warn("Coudln't set locale to ru_RU.UTF-8");
+
+            return;
+        }
+
+        std::locale::global(std::locale(locale_mame));
+        spdlog::warn("Locale set to ru_RU.UTF-8");
+    }
+}
+
 int main(int argc, char *argv[]) {
+
     // spdlog::set_pattern("\033[30;1m[%H:%M:%S.%e]\033[0;39m %^[%=8l]%$ \033[1;37m%v\033[0;39m");
     spdlog::set_pattern("[%H:%M:%S.%e] %^[%=8l]%$ %v");
 
@@ -145,6 +170,8 @@ int main(int argc, char *argv[]) {
 
         return EXIT_FAILURE;
     }
+
+    set_locale();
 
     if (is_debug) {
         spdlog::set_level(spdlog::level::debug);
