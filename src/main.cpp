@@ -50,7 +50,7 @@ void set_locale() {
 
         const char* const locale_mame = "ru_RI.UTF-8";
         if (!std::setlocale(LC_ALL, locale_mame)) {
-            spdlog::warn("Coudln't set locale to ru_RU.UTF-8");
+            spdlog::warn("Couldn't set locale to ru_RU.UTF-8");
 
             return;
         }
