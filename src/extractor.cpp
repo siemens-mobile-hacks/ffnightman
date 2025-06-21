@@ -5,7 +5,9 @@
 #include <ffshit/filesystem/platform/builder.h>
 
 #include <iostream>
+#include <algorithm>
 #include <spdlog/spdlog.h>
+
 Extractor::Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLASH::Platform platform) :
     partitions(partitions) {
     
