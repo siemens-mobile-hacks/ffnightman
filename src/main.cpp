@@ -14,6 +14,11 @@
 #include <ffshit/partition/partitions.h>
 #include <ffshit/partition/ex.h>
 
+
+#if defined(_WIN32)
+#include <windows.h>
+#endif
+
 Log::Interface::Ptr log_inerface_ptr = Log::Interface::build();
 
 void dump_partitions_info(const FULLFLASH::Partitions::Partitions &partitions) {
@@ -36,6 +41,7 @@ void dump_partitions_info(const FULLFLASH::Partitions::Partitions &partitions) {
     }
 }
 
+#if defined(_WIN32)
 void set_locale() {
     auto curr_locale = std::setlocale(LC_ALL, NULL);
 
@@ -59,6 +65,7 @@ void set_locale() {
         spdlog::warn("Locale set to ru_RU.UTF-8");
     }
 }
+#endif
 
 int main(int argc, char *argv[]) {
 
@@ -171,7 +178,10 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
+#if defined(_WIN32)
+    SetConsoleOutputCP(CP_UTF8);
     set_locale();
+#endif
 
     if (is_debug) {
         spdlog::set_level(spdlog::level::debug);
