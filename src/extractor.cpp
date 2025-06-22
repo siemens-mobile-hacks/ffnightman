@@ -133,7 +133,7 @@ void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::filesyste
 
         spdlog::info("  File      {}", file_path.string());
 
-        file_stream.open(file_path.string(), std::ios_base::binary | std::ios_base::trunc);
+        file_stream.open(file_path, std::ios_base::binary | std::ios_base::trunc);
 
         if (!file_stream.is_open()) {
             throw FULLFLASH::Exception("Couldn't create file '{}': {}", file_path.string(), strerror(errno));
