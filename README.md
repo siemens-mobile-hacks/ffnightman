@@ -44,7 +44,7 @@ Coming soon
      > sudo pacman -S gcc make cmake git fmt spdlog
      ```
 
-    - ##### Ubuntu 24.40
+    - ##### Ubuntu 24.04
     ```
     > sudo apt update
     > sudo apt install build-essential git cmake libfmt9 libfmt-dev libspdlog1.12 libspdlog-dev
