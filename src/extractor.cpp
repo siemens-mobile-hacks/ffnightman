@@ -25,16 +25,6 @@ Extractor::Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLAS
     }
 }
 
-// Extractor::Extractor(FULLFLASH::Blocks &blocks, FULLFLASH::Platform platform) : blocks(blocks) {
-//     filesystem = FULLFLASH::Filesystem::build(platform, blocks);
-
-//     if (filesystem) {
-//         filesystem->load();
-//     } else {
-//         throw FULLFLASH::Exception("fs == nullptr o_O");
-//     }
-// }
-
 void Extractor::extract(std::filesystem::path path, bool overwrite) {
     spdlog::info("Extracting filesystem");
 
@@ -142,6 +132,9 @@ void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::filesyste
         file_stream.write(file->get_data().get_data().get(), file->get_data().get_size());
 
         file_stream.close();
+
+        auto timestamp  = file->get_timestamp();
+        set_time(file_path, timestamp);
     }
 
     for (const auto &subdir : subdirs) {
@@ -153,4 +146,15 @@ void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::filesyste
         unpack(subdir, dir);
     }
 
+    auto timestamp = dir->get_timestamp();
+    set_time(path, timestamp);
+}
+
+void Extractor::set_time(const std::filesystem::path &path, const FULLFLASH::Filesystem::TimePoint &timestamp) {
+    // o_O
+
+    auto nanakon    = std::chrono::duration_cast<std::chrono::nanoseconds>(timestamp.time_since_epoch());
+    auto nanakon89  = std::filesystem::file_time_type(std::chrono::nanoseconds(nanakon));
+
+    std::filesystem::last_write_time(path, nanakon89);
 }
