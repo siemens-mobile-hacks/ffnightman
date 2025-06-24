@@ -37,7 +37,7 @@ Usage:
 ## Бинарные сборки
 Coming soon
 ## Сборка из исходников
-- ### *nix
+### *nix 
   - #### Установка зависимостей
     - ##### Arch Linux
      ```
@@ -77,6 +77,5 @@ Coming soon
     ~/ffnightman > cmake -DCMAKE_PREFIX_PATH="~/libffshit/target" -DCMAKE_BUILD_TYPE="Release" -B build
     ~/ffnightman > cmake --build build --config Release
     ```
-
-- ### Windows
-    Coming soon
+### Windows
+Coming soon
