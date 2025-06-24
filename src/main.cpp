@@ -41,6 +41,19 @@ void dump_partitions_info(const FULLFLASH::Partitions::Partitions &partitions) {
     }
 }
 
+void dump_partitions_short(const FULLFLASH::Partitions::Partitions &partitions) {
+    const auto &p_map = partitions.get_partitions();
+    std::string partitions_list;
+
+    for (const auto &pair : p_map) {
+        const std::string & name    = pair.first;
+
+        partitions_list += fmt::format("{} ", name);
+    }
+
+    spdlog::info("Found parts.: [ {}]", partitions_list);
+}
+
 #if defined(_WIN32)
 void set_locale() {
     auto curr_locale = std::setlocale(LC_ALL, NULL);
@@ -82,10 +95,9 @@ int main(int argc, char *argv[]) {
 
     bool        is_debug                    = false;
     bool        is_overwrite                = false;
-    bool        is_scan_only                = false;
+    bool        is_filesystem_scan_only     = false;
     bool        is_old_search_algorithm     = false;
     bool        is_partitions_search_only   = false;
-    bool        is_search_address_set       = false;
     uint32_t    search_start_adddress       = 0;
 
     try {
@@ -99,11 +111,11 @@ int main(int argc, char *argv[]) {
             ("d,debug", "Enable debugging")
             ("p,path", "Destination path. Data_<Model>_<IMEI> by default", cxxopts::value<std::string>())
             ("m,platform", "Specify platform (disable autodetect).\n[ " + supported_platforms + "]" , cxxopts::value<std::string>())
-            ("start-addr", "Partition search start address (hex)\nBy default:\nX65: 0x00800000\nX75: 0x004C0000", cxxopts::value<std::string>())
+            ("start-addr", "Partition search start address (hex)\n", cxxopts::value<std::string>())
             ("old", "Old search algorithm")
             ("ffpath", "fullflash path", cxxopts::value<std::string>())
             ("f,partitions", "partitions search for debugging purposes only")
-            ("s,scan", "fullflash scanning for debugging purposes only")
+            ("s,scan", "filesystem scanning for debugging purposes only")
             ("o,overwrite", "Always delete data directory if exists")
             ("h,help", "Help");
 
@@ -150,7 +162,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (parsed.count("s")) {
-            is_scan_only = true;
+            is_filesystem_scan_only = true;
         }
 
         if (parsed.count("old")) {
@@ -162,8 +174,6 @@ int main(int argc, char *argv[]) {
         }
 
         if (parsed.count("start-addr")) {
-            is_search_address_set = true;
-
             std::string hex_str = parsed["start-addr"].as<std::string>();
 
             search_start_adddress = std::stoi(hex_str, nullptr, 16);
@@ -197,9 +207,9 @@ int main(int argc, char *argv[]) {
         if (override_platform.length()) {
             platform    = FULLFLASH::StringToPlatform.at(override_platform);
 
-            partitions = FULLFLASH::Partitions::Partitions::build(ff_path, platform, is_old_search_algorithm, is_search_address_set, search_start_adddress);
+            partitions = FULLFLASH::Partitions::Partitions::build(ff_path, platform, is_old_search_algorithm, search_start_adddress);
         } else {
-            partitions = FULLFLASH::Partitions::Partitions::build(ff_path, is_old_search_algorithm, is_search_address_set, search_start_adddress);
+            partitions = FULLFLASH::Partitions::Partitions::build(ff_path, is_old_search_algorithm, search_start_adddress);
 
             platform    = partitions->get_platform();
             imei        = partitions->get_imei();
@@ -209,19 +219,21 @@ int main(int argc, char *argv[]) {
         }
 
         if (model.length()) {
-            spdlog::info("Model:    {}", model);
+            spdlog::info("Model:        {}", model);
         }
 
         if (imei.length()) {
-            spdlog::info("IMEI:     {}", imei);
-        }
-
-        if (is_partitions_search_only) {
-            return EXIT_SUCCESS;
+            spdlog::info("IMEI:         {}", imei);
         }
 
         if (is_debug) {
             dump_partitions_info(*partitions);
+        } else {
+            dump_partitions_short(*partitions);
+        }
+
+        if (is_partitions_search_only) {
+            return EXIT_SUCCESS;
         }
 
         std::filesystem::path data_path;
@@ -236,7 +248,7 @@ int main(int argc, char *argv[]) {
             spdlog::info("Destination path: {}", data_path.string());
         }
 
-        if (platform == FULLFLASH::Platform::X85 && !is_scan_only) {
+        if (platform == FULLFLASH::Platform::X85 && !is_filesystem_scan_only) {
             bool is_continue = false;
 
             is_continue = Help::input_yn([]() {
@@ -248,9 +260,10 @@ int main(int argc, char *argv[]) {
             }
         }
 
+
         Extractor extractor(partitions, platform);
 
-        if (!is_scan_only) {
+        if (!is_filesystem_scan_only) {
             extractor.extract(data_path, is_overwrite);
         }
 
@@ -263,78 +276,6 @@ int main(int argc, char *argv[]) {
     } catch (const FULLFLASH::Filesystem::Exception &e) {
         spdlog::error("{}", e.what());
     }
-
-    // try {
-    //     FULLFLASH::Platform     platform;
-    //     std::string             imei;
-    //     std::string             model;
-
-    //     FULLFLASH::Blocks::Ptr  blocks;
-
-    //     if (override_platform.length()) {
-    //         spdlog::warn("Manualy selected platform: {}", override_platform);
-            
-    //         platform    = FULLFLASH::StringToPlatform.at(override_platform);
-    //         blocks      = FULLFLASH::Blocks::build(ff_path, platform);
-    //     } else {
-    //         blocks = FULLFLASH::Blocks::build(ff_path);
-
-    //         platform    = blocks->get_platform();
-    //         imei        = blocks->get_imei();
-    //         model       = blocks->get_model();
-
-    //         spdlog::info("Platform: {}", FULLFLASH::PlatformToString.at(platform));
-    //     }
-    
-    //     if (model.length()) {
-    //         spdlog::info("Model:    {}", model);
-    //     }
-
-    //     if (imei.length()) {
-    //         spdlog::info("IMEI:     {}", imei);
-    //     }
-
-    //     std::filesystem::path data_path;// std::filesystem::current_path();
-
-    //     data_path.append(fmt::format("Data_{}_{}", model, imei));
-
-    //     if (override_dst_path.length() != 0) {
-    //         spdlog::warn("Destination path override '{}' -> '{}'", data_path.string(), override_dst_path);
-
-    //         data_path = override_dst_path;
-    //     } else {
-    //         spdlog::info("Destination path: {}", data_path.string());
-    //     }
-
-    //     if (platform == FULLFLASH::Platform::X85 && !is_scan_only) {
-    //         bool is_continue = false;
-
-    //         is_continue = Help::input_yn([]() {
-    //             spdlog::warn("X85 platform unsupported yet. Continue (y/n)?");
-    //         });
-
-    //         if (!is_continue) {
-    //             return EXIT_SUCCESS;
-    //         }
-    //     }
-
-    //     if (is_debug) {
-    //         blocks->print();
-    //     }
-
-    //     Extractor extractor(*blocks, platform);
-
-    //     if (!is_scan_only) {
-    //         extractor.extract(data_path, is_overwrite);
-    //     }
-
-    //     spdlog::info("Done");
-
-    // } catch (const FULLFLASH::Exception &e) {
-    //     spdlog::error("{}", e.what());
-    // } catch (const FULLFLASH::Filesystem::Exception &e) {
-    //     spdlog::error("{}", e.what());
-    // }
 
     return 0;
 }
