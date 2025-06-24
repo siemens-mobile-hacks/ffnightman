@@ -8,6 +8,14 @@
 #include <algorithm>
 #include <spdlog/spdlog.h>
 
+// на BSD это конечно же никто не проверял
+
+#if defined( __linux__) || defined(__APPLE__) || defined(__FreeBSD__)
+    #include <utime.h>
+#elif defined(_WIN64)
+    #include <windows.h>
+#endif
+
 Extractor::Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLASH::Platform platform) :
     partitions(partitions) {
     
@@ -150,11 +158,73 @@ void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::filesyste
     set_time(path, timestamp);
 }
 
+#ifdef __linux__ 
+static void set_linux_file_timestamp(const std::filesystem::path &path, const FULLFLASH::Filesystem::TimePoint &timestamp) {
+}
+#endif
+
 void Extractor::set_time(const std::filesystem::path &path, const FULLFLASH::Filesystem::TimePoint &timestamp) {
     // o_O
 
-    auto nanakon    = std::chrono::duration_cast<std::chrono::nanoseconds>(timestamp.time_since_epoch());
-    auto nanakon89  = std::filesystem::file_time_type(std::chrono::nanoseconds(nanakon));
+#if defined( __linux__) || defined(__APPLE__) || defined(__FreeBSD__)
+    auto set = [&] () {
+        struct utimbuf new_times;
 
-    std::filesystem::last_write_time(path, nanakon89);
+        new_times.actime    = std::chrono::system_clock::to_time_t(timestamp);
+        new_times.modtime   = std::chrono::system_clock::to_time_t(timestamp);
+
+        if (utime(path.c_str(), &new_times) == -1) {
+            throw FULLFLASH::Exception("Couldn't set file '{}' mod. date: {}", path.string(), strerror(errno));
+        }
+    };
+#elif defined(_WIN64)
+    auto set = [&] () {
+        const ULONGLONG UNIX_EPOCH_AS_FILETIME = 116444736000000000ULL; 
+
+        time_t      unix_timestamp  = std::chrono::system_clock::to_time_t(timestamp);
+        ULONGLONG   nanakon89       = unix_timestamp * 10000000ULL + UNIX_EPOCH_AS_FILETIME;
+
+        FILETIME    file_time;
+
+        file_time.dwLowDateTime     = static_cast<DWORD>(nanakon89);
+        file_time.dwHighDateTime    = static_cast<DWORD>(nanakon89 >> 32);
+
+        // =================================
+
+        HANDLE          h_file;
+        std::wstring    ws_path     = path.wstring();
+        LPCWSTR         win_path    = reinterpret_cast<LPCWSTR>(ws_path.c_str());
+        DWORD           type;
+
+        if (std::filesystem::is_directory(path)) {
+            type = FILE_FLAG_BACKUP_SEMANTICS;
+        } else {
+            type = FILE_ATTRIBUTE_NORMAL;
+        }
+
+        h_file = CreateFileW(
+            win_path,
+            GENERIC_READ | GENERIC_WRITE, // Desired access (read and write)
+            FILE_SHARE_READ | FILE_SHARE_WRITE,            // Share mode (allow others to read)
+            NULL,                       // Security attributes (default)
+            OPEN_EXISTING,              // Creation disposition (open if exists, create if not)
+            type,                       // File attributes (normal file)
+            NULL                        // Template file (none)
+        );
+
+        if (h_file == INVALID_HANDLE_VALUE) {
+            throw FULLFLASH::Exception("Couldn't open file '{}' for set mod. date: {}", path.string(), GetLastError());
+        }
+
+        if (!SetFileTime(h_file, &file_time, &file_time, &file_time)) {
+            CloseHandle(h_file);
+
+            throw FULLFLASH::Exception("Couldn't set file '{}' mod. date: {}", path.string(), GetLastError());
+        }
+
+        CloseHandle(h_file);
+    };
+#endif
+
+    set();
 }
