@@ -14,9 +14,12 @@
 #include <ffshit/partition/partitions.h>
 #include <ffshit/partition/ex.h>
 
+#if defined(_WIN64)
+    #include <windows.h>
+#endif
 
-#if defined(_WIN32)
-#include <windows.h>
+#ifndef DEF_VERSION_STRING
+    #define DEF_VERSION_STRING ""
 #endif
 
 Log::Interface::Ptr log_inerface_ptr = Log::Interface::build();
@@ -54,7 +57,7 @@ void dump_partitions_short(const FULLFLASH::Partitions::Partitions &partitions) 
     spdlog::info("Found parts.: [ {}]", partitions_list);
 }
 
-#if defined(_WIN32)
+#if defined(_WIN64)
 void set_locale() {
     auto curr_locale = std::setlocale(LC_ALL, NULL);
 
@@ -87,7 +90,9 @@ int main(int argc, char *argv[]) {
 
     FULLFLASH::Log::Logger::init(log_inerface_ptr);
 
-    cxxopts::Options options(argv[0], "Siemens filesystem extractor");
+    std::string app_description = fmt::format("Siemens filesystem extractor v{}", DEF_VERSION_STRING);
+
+    cxxopts::Options options(argv[0], app_description);
 
     std::string ff_path;
     std::string override_dst_path;
