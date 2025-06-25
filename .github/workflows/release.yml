@@ -1,0 +1,53 @@
+name: Build for release
+on:
+  release:
+    types: [created]
+
+permissions:
+  contents: write
+
+jobs:
+  ubuntu-noble-release-build:
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt -y install build-essential libfmt9 libfmt-dev libspdlog1.12 libspdlog-dev cmake git make
+    - name: Build
+      id: vars
+      run: |
+        packaging/deb/build_ubuntu_24.04.sh build_ub2404
+    - name: Make ubuntu-24.04 package
+      run: |
+        packaging/deb/pack.sh build_ub2404
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: true
+        files: |
+          _packages_deb/*.deb
+  windows-release-build:
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt -y install mingw-w64 mingw-w64-tools mingw-w64-i686-dev mingw-w64-x86-64-dev mingw-w64-common win-iconv-mingw-w64-dev cmake git make zip
+    - name: Build
+      id: vars
+      run: |
+        packaging/win/build.sh
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: true
+        files: |
+          target_win/bin/*.zip
+
