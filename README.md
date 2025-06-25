@@ -34,8 +34,13 @@ Usage:
   -h, --help            Help
   ```
 
-## Бинарные сборки
-Coming soon
+## Бинарные и не очень сборки
+- Ubuntu 24.04: см. Releases
+- Windows X64: см. Releases
+- Arch Linux (AUR): (Спасибо <a href="mailto:kirill.zhumarin@gmail.com">Kirill Zhumarin</a> )
+  - https://aur.archlinux.org/packages/libffshit-git
+  - https://aur.archlinux.org/packages/ffnightman-git
+
 ## Сборка из исходников
 ### *nix 
   - #### Установка зависимостей
