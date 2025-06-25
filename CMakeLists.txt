@@ -38,10 +38,15 @@ if(GIT_FOUND)
     set(VERSION_STRING "${CMAKE_PROJECT_VERSION}-${GIT_COMMIT_HASH}")
 endif()
 
+set(CMAKE_MACOSX_RPATH TRUE)
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+list( APPEND CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib )
+list( APPEND CMAKE_INSTALL_RPATH ~/lib )
 
 add_executable(${PROJECT_NAME} ${SRC_LIST})
 target_compile_definitions(${PROJECT_NAME} PRIVATE DEF_VERSION_STRING="${VERSION_STRING}")
 target_link_libraries(${PROJECT_NAME} PRIVATE ffshit::ffshit fmt::fmt spdlog::spdlog ${Iconv_LIBRARIES})
+
 install(TARGETS ${PROJECT_NAME})
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/packaging/deb")
