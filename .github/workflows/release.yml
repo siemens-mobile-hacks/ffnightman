@@ -30,6 +30,29 @@ jobs:
         prerelease: true
         files: |
           _packages_deb/*.deb
+  debian-bookworm-release-build:
+    runs-on: deb-bookworm
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt -y install build-essential libfmt9 libfmt-dev libspdlog1.10 libspdlog-dev cmake git make
+    - name: Build
+      id: vars
+      run: |
+        packaging/deb/build_debian_12.sh build_deb12
+    - name: Make Debian 12 package
+      run: |
+        packaging/deb/pack.sh build_deb12
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: true
+        files: |
+          _packages_deb/*.deb
   windows-release-build:
     runs-on: ubuntu-24.04
     steps:
