@@ -1,7 +1,5 @@
-name: Build for release
-on:
-  release:
-    types: [created]
+name: Build dev
+on: [push]
 
 permissions:
   contents: write
