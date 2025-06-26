@@ -3,6 +3,7 @@
 
 #include <ffshit/system.h>
 #include <ffshit/filesystem/platform/builder.h>
+#include <ffshit/filesystem/ex.h>
 
 #include <iostream>
 #include <algorithm>
@@ -21,7 +22,6 @@ Extractor::Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLAS
     
     if (!partitions) {
         throw FULLFLASH::Exception("partitions == nullptr o_O");
-
     }
 
     filesystem = FULLFLASH::Filesystem::build(platform, partitions);
@@ -106,6 +106,89 @@ void Extractor::extract(std::filesystem::path path, bool overwrite) {
     };
 }
 
+// https://gist.github.com/ichramm/3ffeaf7ba4f24853e9ecaf176da84566
+bool Extractor::utf8_filename_check(const std::string &file_name, size_t &invalid_pos, size_t &invalid_size) {
+    size_t n    = 0;
+    size_t len  = file_name.size();
+
+    for (size_t i = 0; i < len; ++i) {
+        unsigned char c = static_cast<unsigned char>(file_name.at(i));
+
+        //if (c==0x09 || c==0x0a || c==0x0d || (0x20 <= c && c <= 0x7e) ) n = 0; // is_printable_ascii
+        if (0x00 <= c && c <= 0x7f) {
+            n = 0; // 0bbbbbbb
+        } else if ((c & 0xE0) == 0xC0) {
+            n = 1; // 110bbbbb
+        } else if   (c == 0xED && i < (len - 1) &&
+                    (static_cast<unsigned char>(file_name.at(i + 1)) & 0xA0) == 0xA0) {
+            invalid_pos     = i;
+            invalid_size    = 255;
+
+            return false; //U+d800 to U+dfff
+        } else if ((c & 0xF0) == 0xE0) {
+            n = 2; // 1110bbbb
+        } else if ((c & 0xF8) == 0xF0) {
+            n = 3; // 11110bbb
+        //} else if (($c & 0xFC) == 0xF8) { n=4; // 111110bb //byte 5, unnecessary in 4 byte UTF-8
+        //} else if (($c & 0xFE) == 0xFC) { n=5; // 1111110b //byte 6, unnecessary in 4 byte UTF-8
+        } else {
+            invalid_pos     = i;
+            invalid_size    = 255;
+
+            return false;
+        }
+
+        for (size_t j = 0; j < n && i < len; ++j) { // n bytes matching 10bbbbbb follow ?
+            if ((++i == len) || (( (static_cast<unsigned char>(file_name.at(i)) & 0xC0) != 0x80))) {
+                invalid_pos    = i;
+                invalid_size   = n;
+
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+void Extractor::utf8_filename_fix(std::string &file_name, size_t invalid_pos, size_t invalid_size, std::function<void()> warn_printer) {
+    if (invalid_size == 255) {
+        warn_printer();
+
+        throw FULLFLASH::Filesystem::Exception("Invalid size == 255. Where's you find it? Please report me. Roman Serov <roman@serov.co>");
+
+    }
+
+    if (warn_printer) {
+        warn_printer();
+    }
+
+    for (size_t i = invalid_pos; i > invalid_pos - invalid_size - 1; --i) {
+        file_name[i] = 0x2D;
+    }
+}
+
+std::string Extractor::utf8_filename(std::string file_name) {
+    size_t invalid_pos  = 0;
+    size_t invalid_size = 0;
+
+    if (!utf8_filename_check(file_name, invalid_pos, invalid_size)) {
+        utf8_filename_fix(file_name, invalid_pos, invalid_size, [&]() {
+            std::string out;
+
+            for (const auto &c : file_name) {
+                out += fmt::format("{:02X} ", static_cast<uint8_t>(c));
+            }
+
+            spdlog::warn("  Invalid file name: {}", file_name);        
+            spdlog::warn("  Hex:               {}", out);
+            spdlog::warn("  Invalid character code replaced with 0x2D (-)");
+        });
+    }
+
+    return file_name;
+}
+
 void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::filesystem::path path) {
     bool r = System::create_directory(path, 
                     std::filesystem::perms::owner_read | std::filesystem::perms::owner_write | std::filesystem::perms::owner_exec |
@@ -127,7 +210,7 @@ void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::filesyste
         std::filesystem::path   file_path(path);
         std::ofstream           file_stream;
 
-        file_path.append(file->get_name());
+        file_path.append(utf8_filename(file->get_name()));
 
         spdlog::info("  File      {}", file_path.string());
 
@@ -148,7 +231,7 @@ void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::filesyste
     for (const auto &subdir : subdirs) {
         std::filesystem::path dir(path);
 
-        dir.append(subdir->get_name());
+        dir.append(utf8_filename(subdir->get_name()));
         spdlog::info("  Directory {}", dir.string());
 
         unpack(subdir, dir);
@@ -157,11 +240,6 @@ void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::filesyste
     auto timestamp = dir->get_timestamp();
     set_time(path, timestamp);
 }
-
-#ifdef __linux__ 
-static void set_linux_file_timestamp(const std::filesystem::path &path, const FULLFLASH::Filesystem::TimePoint &timestamp) {
-}
-#endif
 
 void Extractor::set_time(const std::filesystem::path &path, const FULLFLASH::Filesystem::TimePoint &timestamp) {
     // o_O

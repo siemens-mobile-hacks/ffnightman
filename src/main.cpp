@@ -280,6 +280,8 @@ int main(int argc, char *argv[]) {
         spdlog::error("{}", e.what());
     } catch (const FULLFLASH::Filesystem::Exception &e) {
         spdlog::error("{}", e.what());
+    } catch (const std::filesystem::filesystem_error &e) {
+        spdlog::error("Filesystem error: '{}' '{}' {}", e.path1().string(), e.path2().string(), e.what());
     }
 
     return 0;
