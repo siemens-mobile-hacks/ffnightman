@@ -1,5 +1,7 @@
 #!/bin/env bash
 
+set -e
+
 ROOT_DIR=$(pwd)
 DEPS_DIR="$ROOT_DIR/deps"
 

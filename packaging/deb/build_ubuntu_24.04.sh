@@ -6,6 +6,8 @@ then
     exit -1
 fi;
 
+set -e
+
 BUILD_DIR=$1
 ROOT_DIR=$(pwd)
 

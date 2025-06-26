@@ -28,7 +28,6 @@ set(SRC_LIST
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     if(MINGW)
-        set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
         set(CMAKE_CXX_FLAGS_DEBUG "-g -static -static-libgcc -static-libstdc++")
         set(CMAKE_CXX_FLAGS_RELEASE "-O3 -static -static-libgcc -static-libstdc++")
     else()
@@ -48,6 +47,8 @@ if(GIT_FOUND)
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
     set(VERSION_STRING "${CMAKE_PROJECT_VERSION}-${GIT_COMMIT_HASH}")
+else()
+    set(GIT_COMMIT_HASH "")
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
