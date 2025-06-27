@@ -47,7 +47,7 @@ then
     LIBFFSHIT_VERSION_NUMBER=`echo "$LIBFFSHIT_LATEST_TAG" | sed "s/v//"`
     LIBFFSHIT_VERSION_STRING="$LIBFFSHIT_VERSION_NUMBER-$LIBFFSHIT_GIT_HASH"
 else
-    LIBFFSHIT_LATEST_TAG=$(git describe --tags)
+    LIBFFSHIT_LATEST_TAG=$(git describe --tags --abbrev=0)
     LIBFFSHIT_GIT_HASH=$(git rev-parse --short HEAD)
     LIBFFSHIT_VERSION_NUMBER=`echo "$LIBFFSHIT_LATEST_TAG" | sed "s/v//"`
     LIBFFSHIT_VERSION_STRING="$LIBFFSHIT_VERSION_NUMBER-$LIBFFSHIT_GIT_HASH-unstable"
@@ -60,6 +60,7 @@ cpack -G DEB
 cd ../_packages_deb
 sudo dpkg -i *.deb
 
-cd "$ROOT_DIR"
+# cd "$ROOT_DIR"
+cd ../../
 cmake -DDEV_BUILD=$DEV_BUILD -DCMAKE_BUILD_TYPE=Release  -DDIST_NAME="debian-12" -DDIST_DEPS="libfmt9,libfmt-dev,libspdlog1.10,libspdlog-dev,catch2,libffshit (= $LIBFFSHIT_VERSION_STRING)" -DDIST_ARCH="amd64"  -B $BUILD_DIR
 cmake --build $BUILD_DIR --config Release
