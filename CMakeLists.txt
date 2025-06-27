@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 project(ffnightman VERSION 0.0.1 LANGUAGES CXX)
 
 option(BUILD_DEV "Development build" ON)
+option(BUILD_DEB_PACKAGE "Build debian-like package" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -73,5 +74,20 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ffshit::ffshit fmt::fmt spdlog::sp
 
 install(TARGETS ${PROJECT_NAME})
 
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/packaging/deb")
-include(deb)
+if (BUILD_DEB_PACKAGE)
+    if (NOT DEFINED DEB_DIST_ARCH)
+        message( FATAL_ERROR "You must specify DEB_DIST_ARCH. For example -DDEB_DIST_ARCH=amd64" )
+    endif()
+
+    if (NOT DEFINED DEB_DIST_DEPS)
+        message( FATAL_ERROR "You must specify DEB_DIST_DEPS. For example -DDEB_DIST_DEPS=\"libfmt9,libfmt-dev\"" )
+    endif()
+
+    if (NOT DEFINED DEB_DIST_NAME)
+        message( FATAL_ERROR "You must specify DEB_DIST_NAME. For example -DDEB_DIST_NAME=debian-12" )
+    endif()
+
+    set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/packaging/deb")
+
+    include(deb)
+endif()

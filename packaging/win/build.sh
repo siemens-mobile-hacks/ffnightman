@@ -68,14 +68,22 @@ cd ..
 # ==== Building libffshit ====
 
 cd libffshit
-cmake -DBUILD_DEV=$BUILD_DEV -DCMAKE_TOOLCHAIN_FILE="$DEPS_DIR/libffshit/packaging/win/mingw64.cmake" -DCMAKE_PREFIX_PATH="$DEPS_DIR/fmt/target_win" -DCMAKE_BUILD_TYPE=Release -B build_win
+cmake -DBUILD_DEV=$BUILD_DEV    -DCMAKE_BUILD_TYPE=Release \
+                                -DCMAKE_TOOLCHAIN_FILE="$DEPS_DIR/libffshit/packaging/win/mingw64.cmake" \
+                                -DCMAKE_PREFIX_PATH="$DEPS_DIR/fmt/target_win" \
+                                -B build_win
+
 cmake --build build_win --config Release
 cmake --install build_win --prefix target_win
 
 # ==== Building ffnightman ====
 
 cd "$BUILD_ROOT_DIR"
-cmake -DBUILD_DEV=$BUILD_DEV -DCMAKE_TOOLCHAIN_FILE="$DEPS_DIR/libffshit/packaging/win/mingw64.cmake" -DCMAKE_PREFIX_PATH="$DEPS_DIR/fmt/target_win;$DEPS_DIR/spdlog/target_win;$DEPS_DIR/libffshit/target_win" -DCMAKE_BUILD_TYPE=Release -B build_win
+cmake -DBUILD_DEV=$BUILD_DEV    -DCMAKE_BUILD_TYPE=Release \
+                                -DCMAKE_TOOLCHAIN_FILE="$DEPS_DIR/libffshit/packaging/win/mingw64.cmake" \
+                                -DCMAKE_PREFIX_PATH="$DEPS_DIR/fmt/target_win;$DEPS_DIR/spdlog/target_win;$DEPS_DIR/libffshit/target_win" \
+                                -B build_win
+
 cmake --build build_win --config Release
 cmake --install build_win --prefix target_win
 

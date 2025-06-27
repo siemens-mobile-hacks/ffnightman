@@ -52,7 +52,13 @@ else
     LIBFFSHIT_VERSION_STRING="$LIBFFSHIT_VERSION_NUMBER-$LIBFFSHIT_GIT_HASH-unstable"
 fi
 
-cmake -DBUILD_DEV=$BUILD_DEV -DCMAKE_BUILD_TYPE=Release -DDIST_NAME="ubuntu-24.04" -DDIST_DEPS="libfmt9,libfmt-dev" -DDIST_ARCH="amd64" -B build
+cmake -DBUILD_DEV=$BUILD_DEV    -DCMAKE_BUILD_TYPE=Release \
+                                -DBUILD_DEB_PACKAGE=TRUE \
+                                -DDEB_DIST_NAME="ubuntu-24.04" \
+                                -DDEB_DIST_DEPS="libfmt9,libfmt-dev" \
+                                -DDEB_DIST_ARCH="amd64" \
+                                -B build
+
 cmake --build build --config Release
 cd build
 cpack -G DEB
@@ -60,5 +66,11 @@ cd ../_packages_deb
 sudo dpkg -i *.deb
 
 cd ../../../
-cmake -DBUILD_DEV=$BUILD_DEV -DCMAKE_BUILD_TYPE=Release  -DDIST_NAME="ubuntu-24.04" -DDIST_DEPS="libfmt9,libfmt-dev,libspdlog1.12,libspdlog-dev,catch2,libffshit (= $LIBFFSHIT_VERSION_STRING)" -DDIST_ARCH="amd64"  -B $BUILD_DIR
+cmake -DBUILD_DEV=$BUILD_DEV    -DCMAKE_BUILD_TYPE=Release \
+                                -DBUILD_DEB_PACKAGE=TRUE \
+                                -DDEB_DIST_NAME="ubuntu-24.04" \
+                                -DDEB_DIST_DEPS="libfmt9,libfmt-dev,libspdlog1.12,libspdlog-dev,catch2,libffshit (= $LIBFFSHIT_VERSION_STRING)" \
+                                -DDEB_DIST_ARCH="amd64" \
+                                -B $BUILD_DIR
+
 cmake --build $BUILD_DIR --config Release
