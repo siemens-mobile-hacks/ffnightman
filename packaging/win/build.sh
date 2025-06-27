@@ -2,7 +2,7 @@
 
 # Setup variables
 
-DEV_BUILD="FALSE"
+BUILD_DEV="FALSE"
 
 if [ -z $1 ]
 then
@@ -18,7 +18,7 @@ fi
 
 if [ "$1" = "dev" ]
 then
-    DEV_BUILD="TRUE"
+    BUILD_DEV="TRUE"
 fi
 
 set -e
@@ -38,7 +38,7 @@ cd libffshit
 
 LIBFFSHIT_LATEST_TAG=$(git describe --tags --abbrev=0)
 
-if [ "$DEV_BUILD" = FALSE ]
+if [ "$BUILD_DEV" = FALSE ]
 then
     git checkout ${LIBFFSHIT_LATEST_TAG}
 fi
@@ -68,14 +68,14 @@ cd ..
 # ==== Building libffshit ====
 
 cd libffshit
-cmake -DDEV_BUILD=$DEV_BUILD -DCMAKE_TOOLCHAIN_FILE="$DEPS_DIR/libffshit/packaging/win/mingw64.cmake" -DCMAKE_PREFIX_PATH="$DEPS_DIR/fmt/target_win" -DCMAKE_BUILD_TYPE=Release -B build_win
+cmake -DBUILD_DEV=$BUILD_DEV -DCMAKE_TOOLCHAIN_FILE="$DEPS_DIR/libffshit/packaging/win/mingw64.cmake" -DCMAKE_PREFIX_PATH="$DEPS_DIR/fmt/target_win" -DCMAKE_BUILD_TYPE=Release -B build_win
 cmake --build build_win --config Release
 cmake --install build_win --prefix target_win
 
 # ==== Building ffnightman ====
 
 cd "$BUILD_ROOT_DIR"
-cmake -DDEV_BUILD=$DEV_BUILD -DCMAKE_TOOLCHAIN_FILE="$DEPS_DIR/libffshit/packaging/win/mingw64.cmake" -DCMAKE_PREFIX_PATH="$DEPS_DIR/fmt/target_win;$DEPS_DIR/spdlog/target_win;$DEPS_DIR/libffshit/target_win" -DCMAKE_BUILD_TYPE=Release -B build_win
+cmake -DBUILD_DEV=$BUILD_DEV -DCMAKE_TOOLCHAIN_FILE="$DEPS_DIR/libffshit/packaging/win/mingw64.cmake" -DCMAKE_PREFIX_PATH="$DEPS_DIR/fmt/target_win;$DEPS_DIR/spdlog/target_win;$DEPS_DIR/libffshit/target_win" -DCMAKE_BUILD_TYPE=Release -B build_win
 cmake --build build_win --config Release
 cmake --install build_win --prefix target_win
 
@@ -85,7 +85,7 @@ FFNIGHTMAN_VERSION_STRING="$FFNIGHTMAN_LATEST_TAG-$FFNIGHTMAN_GIT_HASH"
 
 cd target_win/bin
 
-if [ "$DEV_BUILD" = TRUE ]
+if [ "$BUILD_DEV" = TRUE ]
 then
     FFNIGHTMAN_VERSION_STRING="$FFNIGHTMAN_VERSION_STRING-unstable"
 fi

@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.15)
 project(ffnightman VERSION 0.0.1 LANGUAGES CXX)
 
+option(BUILD_DEV "Development build" ON)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -51,7 +53,7 @@ if(GIT_FOUND)
     string(APPEND VERSION_PATCH "-${GIT_COMMIT_HASH}")
 endif()
 
-if(DEV_BUILD)
+if(BUILD_DEV)
     string(APPEND VERSION_PATCH "-unstable")
 endif()
 

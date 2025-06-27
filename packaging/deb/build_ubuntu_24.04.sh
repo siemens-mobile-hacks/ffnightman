@@ -12,7 +12,7 @@ then
     exit -2
 fi;
 
-DEV_BUILD="FALSE"
+BUILD_DEV="FALSE"
 
 if [ ! "$2" = "dev" ] && [ ! "$2" = "prod" ]
 then
@@ -22,7 +22,7 @@ fi
 
 if [ "$2" = "dev" ]
 then
-    DEV_BUILD="TRUE"
+    BUILD_DEV="TRUE"
 fi
 
 set -e
@@ -35,7 +35,7 @@ cd "deps_$BUILD_DIR"
 git clone https://github.com/siemens-mobile-hacks/libffshit.git
 cd libffshit
 
-if [ "$DEV_BUILD" = FALSE ]
+if [ "$BUILD_DEV" = FALSE ]
 then
     LIBFFSHIT_LATEST_TAG=$(git describe --tags --abbrev=0)
 
@@ -52,7 +52,7 @@ else
     LIBFFSHIT_VERSION_STRING="$LIBFFSHIT_VERSION_NUMBER-$LIBFFSHIT_GIT_HASH-unstable"
 fi
 
-cmake -DDEV_BUILD=$DEV_BUILD -DCMAKE_BUILD_TYPE=Release -DDIST_NAME="ubuntu-24.04" -DDIST_DEPS="libfmt9,libfmt-dev" -DDIST_ARCH="amd64" -B build
+cmake -DBUILD_DEV=$BUILD_DEV -DCMAKE_BUILD_TYPE=Release -DDIST_NAME="ubuntu-24.04" -DDIST_DEPS="libfmt9,libfmt-dev" -DDIST_ARCH="amd64" -B build
 cmake --build build --config Release
 cd build
 cpack -G DEB
@@ -60,5 +60,5 @@ cd ../_packages_deb
 sudo dpkg -i *.deb
 
 cd ../../../
-cmake -DDEV_BUILD=$DEV_BUILD -DCMAKE_BUILD_TYPE=Release  -DDIST_NAME="ubuntu-24.04" -DDIST_DEPS="libfmt9,libfmt-dev,libspdlog1.12,libspdlog-dev,catch2,libffshit (= $LIBFFSHIT_VERSION_STRING)" -DDIST_ARCH="amd64"  -B $BUILD_DIR
+cmake -DBUILD_DEV=$BUILD_DEV -DCMAKE_BUILD_TYPE=Release  -DDIST_NAME="ubuntu-24.04" -DDIST_DEPS="libfmt9,libfmt-dev,libspdlog1.12,libspdlog-dev,catch2,libffshit (= $LIBFFSHIT_VERSION_STRING)" -DDIST_ARCH="amd64"  -B $BUILD_DIR
 cmake --build $BUILD_DIR --config Release
