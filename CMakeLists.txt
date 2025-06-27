@@ -51,6 +51,10 @@ else()
     set(GIT_COMMIT_HASH "")
 endif()
 
+if(DEV_BUILD)
+    string(APPEND VERSION_STRING "-unstable")
+endif()
+
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
         set(CMAKE_MACOSX_RPATH TRUE)

@@ -19,7 +19,7 @@ jobs:
     - name: Build
       id: vars
       run: |
-        packaging/deb/build_ubuntu_24.04.sh build_ub2404
+        packaging/deb/build_ubuntu_24.04.sh build_ub2404 dev
     - name: Make ubuntu-24.04 package
       run: |
         packaging/deb/pack.sh build_ub2404
@@ -43,7 +43,7 @@ jobs:
     - name: Build
       id: vars
       run: |
-        packaging/deb/build_debian_12.sh build_deb12
+        packaging/deb/build_debian_12.sh build_deb12 dev
     - name: Make Debian 12 package
       run: |
         packaging/deb/pack.sh build_deb12
@@ -67,7 +67,7 @@ jobs:
     - name: Build
       id: vars
       run: |
-        packaging/win/build.sh
+        packaging/win/build.sh dev
     - name: Archive artifacts
       uses: actions/upload-artifact@v4
       with:
