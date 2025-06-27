@@ -26,7 +26,7 @@ jobs:
     - name: Archive artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: dist-without-markdown
+        name: ubuntu-24.04-package
         path: |
           _packages_deb/*.deb
   debian-bookworm-dev-build:
@@ -50,7 +50,7 @@ jobs:
     - name: Archive artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: dist-without-markdown
+        name: debian-12-package
         path: |
           _packages_deb/*.deb
   windows-dev-build:
@@ -71,6 +71,6 @@ jobs:
     - name: Archive artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: dist-without-markdown
+        name: windows-zip
         path: |
           target_win/bin/*.zip
