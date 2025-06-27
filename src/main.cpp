@@ -1,8 +1,11 @@
 #include <ffshit/ex.h>
 
+#include <ffshit/version.h>
 #include <ffshit/system.h>
 #include <ffshit/log/logger.h>
 #include <ffshit/filesystem/ex.h>
+#include <ffshit/partition/partitions.h>
+#include <ffshit/partition/ex.h>
 
 #include <spdlog/spdlog.h>
 #include "thirdparty/cxxopts.hpp"
@@ -11,20 +14,17 @@
 #include "extractor.h"
 #include "help.h"
 
-#include <ffshit/partition/partitions.h>
-#include <ffshit/partition/ex.h>
-
 #if defined(_WIN64)
     #include <windows.h>
 #endif
 
 #ifndef DEF_VERSION_STRING
-    #define DEF_VERSION_STRING ""
+    #define DEF_VERSION_STRING "unknown"
 #endif
 
 Log::Interface::Ptr log_inerface_ptr = Log::Interface::build();
 
-void dump_partitions_info(const FULLFLASH::Partitions::Partitions &partitions) {
+static void dump_partitions_info(const FULLFLASH::Partitions::Partitions &partitions) {
     const auto &p_map = partitions.get_partitions();
 
     for (const auto &pair : p_map) {
@@ -44,7 +44,7 @@ void dump_partitions_info(const FULLFLASH::Partitions::Partitions &partitions) {
     }
 }
 
-void dump_partitions_short(const FULLFLASH::Partitions::Partitions &partitions) {
+static void dump_partitions_short(const FULLFLASH::Partitions::Partitions &partitions) {
     const auto &p_map = partitions.get_partitions();
     std::string partitions_list;
 
@@ -58,7 +58,7 @@ void dump_partitions_short(const FULLFLASH::Partitions::Partitions &partitions) 
 }
 
 #if defined(_WIN64)
-void set_locale() {
+static void set_locale() {
     auto curr_locale = std::setlocale(LC_ALL, NULL);
 
     if (!curr_locale) {
@@ -83,16 +83,21 @@ void set_locale() {
 }
 #endif
 
-int main(int argc, char *argv[]) {
+static std::string build_app_description() {
+    std::string app = "Siemens filesystem extractor";
+    std::string app_version(DEF_VERSION_STRING);
+    std::string libffshit_version(FULLFLASH::get_libffshit_version());
 
+    return fmt::format("{}\n  Version:           {}\n  libffshit version: {}\n", app, app_version, libffshit_version);
+}
+
+int main(int argc, char *argv[]) {
     // spdlog::set_pattern("\033[30;1m[%H:%M:%S.%e]\033[0;39m %^[%=8l]%$ \033[1;37m%v\033[0;39m");
     spdlog::set_pattern("[%H:%M:%S.%e] %^[%=8l]%$ %v");
 
     FULLFLASH::Log::Logger::init(log_inerface_ptr);
 
-    std::string app_description = fmt::format("Siemens filesystem extractor v{}", DEF_VERSION_STRING);
-
-    cxxopts::Options options(argv[0], app_description);
+    cxxopts::Options options(argv[0], build_app_description());
 
     std::string ff_path;
     std::string override_dst_path;
@@ -116,7 +121,7 @@ int main(int argc, char *argv[]) {
             ("d,debug", "Enable debugging")
             ("p,path", "Destination path. Data_<Model>_<IMEI> by default", cxxopts::value<std::string>())
             ("m,platform", "Specify platform (disable autodetect).\n[ " + supported_platforms + "]" , cxxopts::value<std::string>())
-            ("start-addr", "Partition search start address (hex)\n", cxxopts::value<std::string>())
+            ("start-addr", "Partition search start address (hex)", cxxopts::value<std::string>())
             ("old", "Old search algorithm")
             ("ffpath", "fullflash path", cxxopts::value<std::string>())
             ("f,partitions", "partitions search for debugging purposes only")
