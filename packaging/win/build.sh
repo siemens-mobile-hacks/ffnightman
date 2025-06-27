@@ -36,7 +36,7 @@ cd deps
 git clone https://github.com/siemens-mobile-hacks/libffshit.git
 cd libffshit
 
-LIBFFSHIT_LATEST_TAG=$(git describe --tags)
+LIBFFSHIT_LATEST_TAG=$(git describe --tags --abbrev=0)
 
 if [ "$DEV_BUILD" = FALSE ]
 then
