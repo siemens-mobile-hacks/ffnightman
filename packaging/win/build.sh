@@ -79,14 +79,19 @@ cmake -DDEV_BUILD=$DEV_BUILD -DCMAKE_TOOLCHAIN_FILE="$DEPS_DIR/libffshit/packagi
 cmake --build build_win --config Release
 cmake --install build_win --prefix target_win
 
-FFNIGHTMAN_LATEST_TAG=$(git describe --tags)
+FFNIGHTMAN_LATEST_TAG=$(git describe --tags --abbrev=0)
 FFNIGHTMAN_GIT_HASH=$(git rev-parse --short HEAD)
 FFNIGHTMAN_VERSION_STRING="$FFNIGHTMAN_LATEST_TAG-$FFNIGHTMAN_GIT_HASH"
+
+cd target_win/bin
 
 if [ "$DEV_BUILD" = TRUE ]
 then
     FFNIGHTMAN_VERSION_STRING="$FFNIGHTMAN_VERSION_STRING-unstable"
 fi
 
-cd target_win/bin
-zip -r "ffnightman-windows-x64-$FFNIGHTMAN_VERSION_STRING.zip" ffnightman.exe
+FFNIGHTMAN_EXE_NAME="ffnightman-$FFNIGHTMAN_VERSION_STRING.exe"
+
+mv ffnightman.exe "$FFNIGHTMAN_EXE_NAME"
+
+zip -r "ffnightman-windows-x64-$FFNIGHTMAN_VERSION_STRING.zip" "$FFNIGHTMAN_EXE_NAME"
