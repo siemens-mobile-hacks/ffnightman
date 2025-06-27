@@ -38,7 +38,7 @@ cd libffshit
 
 if [ "$DEV_BUILD" = FALSE ]
 then
-    LIBFFSHIT_LATEST_TAG=$(git describe --tags)
+    LIBFFSHIT_LATEST_TAG=$(git describe --tags --abbrev=0)
 
     echo "checkout $LIBFFSHIT_LATEST_TAG"
     git checkout ${LIBFFSHIT_LATEST_TAG}
