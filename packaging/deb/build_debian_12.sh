@@ -28,7 +28,6 @@ fi
 set -e
 
 BUILD_DIR=$1
-ROOT_DIR=$(pwd)
 
 mkdir "deps_$BUILD_DIR"
 cd "deps_$BUILD_DIR"
@@ -60,7 +59,6 @@ cpack -G DEB
 cd ../_packages_deb
 sudo dpkg -i *.deb
 
-# cd "$ROOT_DIR"
 cd ../../../
 cmake -DDEV_BUILD=$DEV_BUILD -DCMAKE_BUILD_TYPE=Release  -DDIST_NAME="debian-12" -DDIST_DEPS="libfmt9,libfmt-dev,libspdlog1.10,libspdlog-dev,catch2,libffshit (= $LIBFFSHIT_VERSION_STRING)" -DDIST_ARCH="amd64"  -B $BUILD_DIR
 cmake --build $BUILD_DIR --config Release

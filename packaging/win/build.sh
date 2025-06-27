@@ -23,8 +23,8 @@ fi
 
 set -e
 
-ROOT_DIR=$(pwd)
-DEPS_DIR="$ROOT_DIR/deps"
+BUILD_ROOT_DIR=$(pwd)
+DEPS_DIR="$BUILD_ROOT_DIR/deps"
 
 # ==== Building dependencies =====
 
@@ -74,7 +74,7 @@ cmake --install build_win --prefix target_win
 
 # ==== Building ffnightman ====
 
-cd "$ROOT_DIR"
+cd "$BUILD_ROOT_DIR"
 cmake -DDEV_BUILD=$DEV_BUILD -DCMAKE_TOOLCHAIN_FILE="$DEPS_DIR/libffshit/packaging/win/mingw64.cmake" -DCMAKE_PREFIX_PATH="$DEPS_DIR/fmt/target_win;$DEPS_DIR/spdlog/target_win;$DEPS_DIR/libffshit/target_win" -DCMAKE_BUILD_TYPE=Release -B build_win
 cmake --build build_win --config Release
 cmake --install build_win --prefix target_win
