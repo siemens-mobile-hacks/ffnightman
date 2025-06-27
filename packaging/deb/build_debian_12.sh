@@ -61,6 +61,6 @@ cd ../_packages_deb
 sudo dpkg -i *.deb
 
 # cd "$ROOT_DIR"
-cd ../../
+cd ../../../
 cmake -DDEV_BUILD=$DEV_BUILD -DCMAKE_BUILD_TYPE=Release  -DDIST_NAME="debian-12" -DDIST_DEPS="libfmt9,libfmt-dev,libspdlog1.10,libspdlog-dev,catch2,libffshit (= $LIBFFSHIT_VERSION_STRING)" -DDIST_ARCH="amd64"  -B $BUILD_DIR
 cmake --build $BUILD_DIR --config Release
