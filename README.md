@@ -3,13 +3,13 @@
 #### Щито это
 Тулза, позволяет извлекать содержимое файловой системы из FULLFLASH
 
-Поддерживаемые платформы:
-* X65
-* X75
+##### Поддерживаемые платформы:
+- SGOLD
+- SGOLD2
+- EGOLD с Card-Exploer (эксперементально в master ветке)
 
-В разработке/планах на 2035:
-* X85
-* X55
+#####  В разработке/планах на 2035:
+- SGOLD2 ELKA
 
 ## Как это использовать
 ```./ffnightman <options> <fullflash path>```
@@ -57,10 +57,10 @@ Usage:
 
   - #### Сборка
     Переходим в удобный нам каталог.
-    Клонируем git репозиторй libffshit
+    Клонируем репозиторй libffshit
 
     ```
-    > git clone https://github.com/siemens-mobile-hacks/libffshit.git
+    ~ > git clone https://github.com/siemens-mobile-hacks/libffshit.git
     ```
     Собираем
     ```
