@@ -152,20 +152,28 @@ bool Extractor::utf8_filename_check(const std::string &file_name, size_t &invali
 }
 
 void Extractor::utf8_filename_fix(std::string &file_name, size_t invalid_pos, size_t invalid_size, std::function<void()> warn_printer) {
-    if (invalid_size == 255) {
-        warn_printer();
-
-        throw FULLFLASH::Filesystem::Exception("Invalid size == 255. Where's you find it? Please report me. Roman Serov <roman@serov.co>");
-
-    }
+    static size_t broken_name_counter = 0;
 
     if (warn_printer) {
         warn_printer();
     }
 
-    for (size_t i = invalid_pos; i > invalid_pos - invalid_size - 1; --i) {
-        file_name[i] = 0x2D;
+    if (invalid_size == 255) {
+        std::string old_name = file_name;
+
+        for (auto &c : file_name) {
+            if (!isprint(static_cast<unsigned char>(c))) {
+                c = 0x2D;
+            }
+        }
+    } else {
+        for (size_t i = invalid_pos; i > invalid_pos - invalid_size - 1; --i) {
+            file_name[i] = 0x2D;
+        }
     }
+
+
+    file_name = fmt::format("brk_{}_{}", broken_name_counter++, file_name);
 }
 
 std::string Extractor::utf8_filename(std::string file_name) {
@@ -183,6 +191,7 @@ std::string Extractor::utf8_filename(std::string file_name) {
             spdlog::warn("  Invalid file name: {}", file_name);        
             spdlog::warn("  Hex:               {}", out);
             spdlog::warn("  Invalid character code replaced with 0x2D (-)");
+            spdlog::warn("  brk_N_ prefix will be added");
         });
     }
 

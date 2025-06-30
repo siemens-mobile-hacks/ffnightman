@@ -258,11 +258,11 @@ int main(int argc, char *argv[]) {
             spdlog::info("Destination path: {}", data_path.string());
         }
 
-        if (platform == FULLFLASH::Platform::X85 && !is_filesystem_scan_only) {
+        if (platform == FULLFLASH::Platform::SGOLD2_ELKA && !is_filesystem_scan_only) {
             bool is_continue = false;
 
             is_continue = Help::input_yn([]() {
-                spdlog::warn("X85 platform unsupported yet. Continue (y/n)?");
+                spdlog::warn("SGOLD2_ELKA platform unsupported yet. Continue (y/n)?");
             });
 
             if (!is_continue) {
