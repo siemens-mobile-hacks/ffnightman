@@ -6,7 +6,7 @@
 ##### Поддерживаемые платформы:
 - SGOLD
 - SGOLD2
-- EGOLD с Card-Explorer (эксперементально в master ветке)
+- EGOLD с Card-Explorer (эксперементально в main ветке)
 
 #####  В разработке/планах на 2035:
 - SGOLD2 ELKA
