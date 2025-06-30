@@ -1,7 +1,5 @@
 #include "help.h"
 
-#include <spdlog/spdlog.h>
-
 #include <iostream>
 #include <ffshit/system.h>
 

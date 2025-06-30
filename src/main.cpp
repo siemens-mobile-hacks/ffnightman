@@ -225,7 +225,7 @@ int main(int argc, char *argv[]) {
             imei        = partitions->get_imei();
             model       = partitions->get_model();
 
-            spdlog::info("Platform: {}", FULLFLASH::PlatformToString.at(platform));
+            spdlog::info("Platform:     {}", FULLFLASH::PlatformToString.at(platform));
         }
 
         if (model.length()) {

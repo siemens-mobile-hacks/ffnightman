@@ -15,6 +15,8 @@
     #include <utime.h>
 #elif defined(_WIN64)
     #include <windows.h>
+#else
+    #error Unsupported operating system
 #endif
 
 Extractor::Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLASH::Platform platform) :
@@ -188,10 +190,10 @@ std::string Extractor::utf8_filename(std::string file_name) {
                 out += fmt::format("{:02X} ", static_cast<uint8_t>(c));
             }
 
-            spdlog::warn("  Invalid file name: {}", file_name);        
-            spdlog::warn("  Hex:               {}", out);
-            spdlog::warn("  Invalid character code replaced with 0x2D (-)");
-            spdlog::warn("  brk_N_ prefix will be added");
+            spdlog::warn("    Invalid file name: {}", file_name);
+            spdlog::warn("    Hex:               {}", out);
+            spdlog::warn("    Invalid character code replaced with 0x2D (-)");
+            spdlog::warn("    brk_N_ prefix will be added");
         });
     }
 
