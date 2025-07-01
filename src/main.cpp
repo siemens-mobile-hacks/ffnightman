@@ -34,12 +34,16 @@ static void dump_partitions_info(const FULLFLASH::Partitions::Partitions &partit
         spdlog::debug("{}:", name);
 
         for (const auto &block : list) {
-            spdlog::debug("  {} Addr: 0x{:08X}, size: {}", name, block.get_addr(), block.get_size());
-            spdlog::debug("  Header:");
-            spdlog::debug("    Name:     {}", block.get_header().name);
-            spdlog::debug("    Unknown1: {:08X}", block.get_header().unknown_1);
-            spdlog::debug("    Unknown2: {:08X}", block.get_header().unknown_2);
-            spdlog::debug("    Unknown3: {:08X}", block.get_header().unknown_3);
+            const auto &header = block.get_header();
+
+            spdlog::debug("  {:8s} Addr: 0x{:08X}, size: {}, Unk1: {:08X}, Unk2: {:08X}, Unk3: {:08X}, Unk4: {:08X}", 
+                header.name,
+                block.get_addr(),
+                block.get_size(),
+                header.unknown_1,
+                header.unknown_2,
+                header.unknown_3,
+                header.unknown_4);
         }
     }
 }
