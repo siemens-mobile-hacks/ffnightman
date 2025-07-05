@@ -19,7 +19,7 @@
     #error Unsupported operating system
 #endif
 
-Extractor::Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLASH::Platform platform) :
+Extractor::Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLASH::Platform platform, bool skip_broken) :
     partitions(partitions) {
     
     if (!partitions) {
@@ -29,7 +29,7 @@ Extractor::Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLAS
     filesystem = FULLFLASH::Filesystem::build(platform, partitions);
 
     if (filesystem) {
-        filesystem->load();
+        filesystem->load(skip_broken);
     } else {
         throw FULLFLASH::Exception("fs == nullptr o_O");
     }
@@ -201,6 +201,16 @@ std::string Extractor::utf8_filename(std::string file_name) {
 }
 
 void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::filesystem::path path) {
+    if (System::is_directory_exists(path)) {
+        static size_t dbl_counter = 0;
+
+        spdlog::warn("Directory '{}' already exists. postfix will be added", path.string());
+
+        std::string new_filename = fmt::format("{}_{}", path.filename().string(), dbl_counter++);
+
+        path.replace_filename(new_filename);
+    }
+
     bool r = System::create_directory(path, 
                     std::filesystem::perms::owner_read | std::filesystem::perms::owner_write | std::filesystem::perms::owner_exec |
                     std::filesystem::perms::group_read | std::filesystem::perms::group_exec |

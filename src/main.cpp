@@ -112,6 +112,8 @@ int main(int argc, char *argv[]) {
     bool        is_filesystem_scan_only     = false;
     bool        is_old_search_algorithm     = false;
     bool        is_partitions_search_only   = false;
+    bool        is_skip_broken              = false;
+
     uint32_t    search_start_adddress       = 0;
 
     try {
@@ -131,6 +133,7 @@ int main(int argc, char *argv[]) {
             ("f,partitions", "partitions search for debugging purposes only")
             ("s,scan", "filesystem scanning for debugging purposes only")
             ("o,overwrite", "Always delete data directory if exists")
+            ("skip", "Skip broken file/directory")
             ("h,help", "Help");
 
         options.parse_positional({"ffpath"});
@@ -145,6 +148,7 @@ int main(int argc, char *argv[]) {
 
         if (!parsed.count("ffpath")) {
             spdlog::error("Please specify fullflash path");
+            fmt::print("\n{}", options.help());
 
             return EXIT_FAILURE;
         }
@@ -185,6 +189,10 @@ int main(int argc, char *argv[]) {
 
         if (parsed.count("f")) {
             is_partitions_search_only = true;
+        }
+
+        if (parsed.count("skip")) {
+            is_skip_broken = true;
         }
 
         if (parsed.count("start-addr")) {
@@ -275,7 +283,7 @@ int main(int argc, char *argv[]) {
         }
 
 
-        Extractor extractor(partitions, platform);
+        Extractor extractor(partitions, platform, is_skip_broken);
 
         if (!is_filesystem_scan_only) {
             extractor.extract(data_path, is_overwrite);
