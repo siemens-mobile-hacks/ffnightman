@@ -287,7 +287,11 @@ int main(int argc, char *argv[]) {
 
         std::filesystem::path data_path;
 
-        data_path.append(fmt::format("{}_{}_{}", model, ff_path.stem().string(), get_datetime()));
+        if (imei.length() != 0) {
+            data_path.append(fmt::format("{}_{}_{}_{}", model, imei, ff_path.stem().string(), get_datetime()));
+        } else {
+            data_path.append(fmt::format("{}_{}_{}", model, ff_path.stem().string(), get_datetime()));
+        }
 
         if (override_dst_path.length() != 0) {
             spdlog::warn("Destination path override '{}' -> '{}'", data_path.string(), override_dst_path);
