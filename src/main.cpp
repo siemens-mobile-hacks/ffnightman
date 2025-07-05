@@ -14,6 +14,8 @@
 #include "extractor.h"
 #include "help.h"
 
+#include <iomanip>
+
 #if defined(_WIN64)
     #include <windows.h>
 #endif
@@ -95,6 +97,17 @@ static std::string build_app_description() {
     return fmt::format("{}\n  Version:           {}\n  libffshit version: {}\n", app, app_version, libffshit_version);
 }
 
+static std::string get_datetime() {
+    auto now        = std::chrono::high_resolution_clock::now();
+    auto timestamp  = std::chrono::high_resolution_clock::to_time_t(now);
+    auto tm         = *std::localtime(&timestamp);
+
+    std::ostringstream oss;
+    oss << std::put_time(&tm, "%Y-%m-%d-_%H-%M-%S");
+
+    return oss.str();
+}
+
 int main(int argc, char *argv[]) {
     // spdlog::set_pattern("\033[30;1m[%H:%M:%S.%e]\033[0;39m %^[%=8l]%$ \033[1;37m%v\033[0;39m");
     spdlog::set_pattern("[%H:%M:%S.%e] %^[%=8l]%$ %v");
@@ -103,9 +116,9 @@ int main(int argc, char *argv[]) {
 
     cxxopts::Options options(argv[0], build_app_description());
 
-    std::string ff_path;
-    std::string override_dst_path;
-    std::string override_platform;
+    std::filesystem::path   ff_path;
+    std::string             override_dst_path;
+    std::string             override_platform;
 
     bool        is_debug                    = false;
     bool        is_overwrite                = false;
@@ -274,10 +287,7 @@ int main(int argc, char *argv[]) {
 
         std::filesystem::path data_path;
 
-        //tmp
-        std::filesystem::path std_ff_path(ff_path);
-
-        data_path.append(fmt::format("{}_{}", model, std_ff_path.stem().string()));
+        data_path.append(fmt::format("{}_{}_{}", model, ff_path.stem().string(), get_datetime()));
 
         if (override_dst_path.length() != 0) {
             spdlog::warn("Destination path override '{}' -> '{}'", data_path.string(), override_dst_path);
@@ -298,7 +308,6 @@ int main(int argc, char *argv[]) {
                 return EXIT_SUCCESS;
             }
         }
-
 
         Extractor extractor(partitions, platform, is_skip_broken, is_skip_dup);
 
