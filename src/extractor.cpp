@@ -19,7 +19,7 @@
     #error Unsupported operating system
 #endif
 
-Extractor::Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLASH::Platform platform, bool skip_broken) :
+Extractor::Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLASH::Platform platform, bool skip_broken, bool skip_dup) :
     partitions(partitions) {
     
     if (!partitions) {
@@ -29,7 +29,7 @@ Extractor::Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLAS
     filesystem = FULLFLASH::Filesystem::build(platform, partitions);
 
     if (filesystem) {
-        filesystem->load(skip_broken);
+        filesystem->load(skip_broken, skip_dup);
     } else {
         throw FULLFLASH::Exception("fs == nullptr o_O");
     }

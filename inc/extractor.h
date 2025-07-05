@@ -9,7 +9,7 @@
 class Extractor {
     public:
         Extractor() = delete;
-        Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLASH::Platform platform, bool skip_broken);
+        Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLASH::Platform platform, bool skip_broken, bool skip_dup);
 
         void                                    extract(std::filesystem::path path, bool overwrite);
         void                                    unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::filesystem::path path);

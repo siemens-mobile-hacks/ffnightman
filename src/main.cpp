@@ -113,6 +113,7 @@ int main(int argc, char *argv[]) {
     bool        is_old_search_algorithm     = false;
     bool        is_partitions_search_only   = false;
     bool        is_skip_broken              = false;
+    bool        is_skip_dup                 = false;
 
     uint32_t    search_start_adddress       = 0;
 
@@ -134,6 +135,8 @@ int main(int argc, char *argv[]) {
             ("s,scan", "filesystem scanning for debugging purposes only")
             ("o,overwrite", "Always delete data directory if exists")
             ("skip", "Skip broken file/directory")
+            ("skip-dup", "Skip duplicate id")
+            ("proto", "For fullflash from protoypes. Enable all skip")
             ("h,help", "Help");
 
         options.parse_positional({"ffpath"});
@@ -195,6 +198,15 @@ int main(int argc, char *argv[]) {
             is_skip_broken = true;
         }
 
+        if (parsed.count("skip-dup")) {
+            is_skip_dup = true;
+        }
+
+        if (parsed.count("proto")) {
+            is_skip_broken  = true;
+            is_skip_dup     = true;
+        }
+
         if (parsed.count("start-addr")) {
             std::string hex_str = parsed["start-addr"].as<std::string>();
 
@@ -230,6 +242,8 @@ int main(int argc, char *argv[]) {
             platform    = FULLFLASH::StringToPlatform.at(override_platform);
 
             partitions = FULLFLASH::Partitions::Partitions::build(ff_path, platform, is_old_search_algorithm, search_start_adddress);
+
+            model       = partitions->get_model();
         } else {
             partitions = FULLFLASH::Partitions::Partitions::build(ff_path, is_old_search_algorithm, search_start_adddress);
 
@@ -260,7 +274,10 @@ int main(int argc, char *argv[]) {
 
         std::filesystem::path data_path;
 
-        data_path.append(fmt::format("Data_{}_{}", model, imei));
+        //tmp
+        std::filesystem::path std_ff_path(ff_path);
+
+        data_path.append(fmt::format("{}_{}", model, std_ff_path.stem().string()));
 
         if (override_dst_path.length() != 0) {
             spdlog::warn("Destination path override '{}' -> '{}'", data_path.string(), override_dst_path);
@@ -283,7 +300,7 @@ int main(int argc, char *argv[]) {
         }
 
 
-        Extractor extractor(partitions, platform, is_skip_broken);
+        Extractor extractor(partitions, platform, is_skip_broken, is_skip_dup);
 
         if (!is_filesystem_scan_only) {
             extractor.extract(data_path, is_overwrite);
