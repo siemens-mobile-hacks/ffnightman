@@ -35,7 +35,7 @@ Usage:
   -o, --overwrite       Always delete data directory if exists
       --skip            Skip broken file/directory
       --skip-dup        Skip duplicate id
-      --proto           For fullflash from protoypes. Enable all skip
+      --proto           For fullflash from prototypes. Enable all skip
   -h, --help            Help
   ```
 
