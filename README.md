@@ -18,19 +18,24 @@
 
 ```
 Siemens filesystem extractor
+  Version:           0.0.1-cc633d5-unstable
+  libffshit version: 0.0.1-962324b-unstable
+
 Usage:
-  ./ffnightman [OPTION...] positional parameters
+  build/ffnightman [OPTION...] positional parameters
 
   -d, --debug           Enable debugging
   -p, --path arg        Destination path. Data_<Model>_<IMEI> by default
   -m, --platform arg    Specify platform (disable autodetect).
-                        [ X85 X75 X65 ]
+                        [ SGOLD2_ELKA SGOLD2 SGOLD EGOLD_CE ]
       --start-addr arg  Partition search start address (hex)
-
       --old             Old search algorithm
   -f, --partitions      partitions search for debugging purposes only
   -s, --scan            filesystem scanning for debugging purposes only
   -o, --overwrite       Always delete data directory if exists
+      --skip            Skip broken file/directory
+      --skip-dup        Skip duplicate id
+      --proto           For fullflash from protoypes. Enable all skip
   -h, --help            Help
   ```
 
