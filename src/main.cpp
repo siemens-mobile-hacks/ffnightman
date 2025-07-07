@@ -10,7 +10,12 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/async.h>
 #include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/sinks/ansicolor_sink.h>
+
+#if defined(_WIN64)
+    #include <spdlog/sinks/wincolor_sink.h>
+#else
+    #include <spdlog/sinks/ansicolor_sink.h>
+#endif
 
 #include "thirdparty/cxxopts.hpp"
 
@@ -123,7 +128,11 @@ static void setup_file_logger(std::filesystem::path ff_path) {
 
         path.append(log_fname);
 
+#if defined(_WIN64)
+        auto stdout_sink    = std::make_shared<spdlog::sinks::wincolor_stdout_sink_mt>();
+#else
         auto stdout_sink    = std::make_shared<spdlog::sinks::ansicolor_stdout_sink_mt>();
+#endif
         auto file_sink      = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path.string(), true);
 
         std::vector<spdlog::sink_ptr> sinks{stdout_sink, file_sink};
