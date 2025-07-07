@@ -35,7 +35,7 @@
 
 static constexpr char SPDLOG_LOG_PATTERN[] = "[%H:%M:%S.%e] %^[%=8l]%$ %v";
 
-Log::Interface::Ptr log_inerface_ptr = Log::Interface::build();
+Log::Interface::Ptr log_interface_ptr = Log::Interface::build();
 
 static void dump_partitions_info(const FULLFLASH::Partitions::Partitions &partitions) {
     const auto &p_map = partitions.get_partitions();
@@ -152,7 +152,7 @@ int main(int argc, char *argv[]) {
     // spdlog::set_pattern("\033[30;1m[%H:%M:%S.%e]\033[0;39m %^[%=8l]%$ \033[1;37m%v\033[0;39m");
     spdlog::set_pattern(SPDLOG_LOG_PATTERN);
 
-    FULLFLASH::Log::Logger::init(log_inerface_ptr);
+    FULLFLASH::Log::Logger::init(log_interface_ptr);
 
     cxxopts::Options options(argv[0], build_app_description());
 
