@@ -50,10 +50,12 @@ void Extractor::extract(std::filesystem::path path, bool overwrite) {
         }
 
         if (is_delete) {
-            bool r = System::remove_directory(path);
+            std::error_code error_code;
+
+            bool r = System::remove_directory(path, error_code);
 
             if (!r) {
-                throw FULLFLASH::Exception("Couldn't delete directory '{}'", path.string());
+                throw FULLFLASH::Exception("Couldn't delete directory '{}': {}", path.string(), error_code.message());
             }
         } else {
             return;
@@ -73,23 +75,27 @@ void Extractor::extract(std::filesystem::path path, bool overwrite) {
 
 
         if (is_delete) {
-            bool r = System::remove_directory(path);
+            std::error_code error_code;
+
+            bool r = System::remove_directory(path, error_code);
 
             if (!r) {
-                throw FULLFLASH::Exception("Couldn't delete directory '{}'", path.string());
+                throw FULLFLASH::Exception("Couldn't delete directory '{}': {}", path.string(), error_code.message());
             }
         } else {
             return;
         }
     }
 
+    std::error_code error_code;
+
     bool r = System::create_directory(path, 
                         std::filesystem::perms::owner_read | std::filesystem::perms::owner_write | std::filesystem::perms::owner_exec |
                         std::filesystem::perms::group_read | std::filesystem::perms::group_exec |
-                        std::filesystem::perms::others_read | std::filesystem::perms::others_exec);
+                        std::filesystem::perms::others_read | std::filesystem::perms::others_exec, error_code);
 
     if (!r) {
-        throw FULLFLASH::Exception("Couldn't create directory '{}'", path.string());
+        throw FULLFLASH::Exception("Couldn't create directory '{}': {}", path.string(), error_code.message());
     }
 
     const auto &fs_map = filesystem->get_filesystem_map();
@@ -211,13 +217,16 @@ void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::filesyste
         path.replace_filename(new_filename);
     }
 
+
+    std::error_code error_code;
+
     bool r = System::create_directory(path, 
                     std::filesystem::perms::owner_read | std::filesystem::perms::owner_write | std::filesystem::perms::owner_exec |
                     std::filesystem::perms::group_read | std::filesystem::perms::group_exec |
-                    std::filesystem::perms::others_read | std::filesystem::perms::others_exec);
+                    std::filesystem::perms::others_read | std::filesystem::perms::others_exec, error_code);
 
     if (!r) {
-        throw FULLFLASH::Exception("Couldn't create directory '{}'", path.string());
+        throw FULLFLASH::Exception("Couldn't create directory '{}': {}", path.string(), error_code.message());
     }
 
     const auto &subdirs = dir->get_subdirs();
