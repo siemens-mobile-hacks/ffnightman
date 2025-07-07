@@ -8,6 +8,10 @@
 #include <ffshit/partition/ex.h>
 
 #include <spdlog/spdlog.h>
+#include <spdlog/async.h>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/ansicolor_sink.h>
+
 #include "thirdparty/cxxopts.hpp"
 
 #include "log/interface.h"
@@ -23,6 +27,8 @@
 #ifndef DEF_VERSION_STRING
     #define DEF_VERSION_STRING "unknown"
 #endif
+
+static constexpr char SPDLOG_LOG_PATTERN[] = "[%H:%M:%S.%e] %^[%=8l]%$ %v";
 
 Log::Interface::Ptr log_inerface_ptr = Log::Interface::build();
 
@@ -108,9 +114,34 @@ static std::string get_datetime() {
     return oss.str();
 }
 
+static void setup_file_logger(std::filesystem::path ff_path) {
+    try  {
+        spdlog::init_thread_pool(8192, 1);
+
+        auto path       = ff_path.parent_path();
+        auto log_fname  = fmt::format("{}_{}.log", ff_path.stem().string(), get_datetime());
+
+        path.append(log_fname);
+
+        auto stdout_sink    = std::make_shared<spdlog::sinks::ansicolor_stdout_sink_mt>();
+        auto file_sink      = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path.string(), true);
+
+        std::vector<spdlog::sink_ptr> sinks{stdout_sink, file_sink};
+        auto logger = std::make_shared<spdlog::async_logger>("ffshit", sinks.begin(), sinks.end(), spdlog::thread_pool(), spdlog::async_overflow_policy::block);
+
+        logger->set_pattern(SPDLOG_LOG_PATTERN);
+        spdlog::register_logger(logger);
+        spdlog::set_default_logger(logger);
+    } catch (const spdlog::spdlog_ex &e) {
+        fmt::print("Couldn't init file logging: {}", e.what());
+
+        exit(-1);
+    }
+}
+
 int main(int argc, char *argv[]) {
     // spdlog::set_pattern("\033[30;1m[%H:%M:%S.%e]\033[0;39m %^[%=8l]%$ \033[1;37m%v\033[0;39m");
-    spdlog::set_pattern("[%H:%M:%S.%e] %^[%=8l]%$ %v");
+    spdlog::set_pattern(SPDLOG_LOG_PATTERN);
 
     FULLFLASH::Log::Logger::init(log_inerface_ptr);
 
@@ -141,6 +172,7 @@ int main(int argc, char *argv[]) {
             ("d,debug", "Enable debugging")
             ("p,path", "Destination path. Data_<Model>_<IMEI> by default", cxxopts::value<std::string>())
             ("m,platform", "Specify platform (disable autodetect).\n[ " + supported_platforms + "]" , cxxopts::value<std::string>())
+            ("l,log", "Save log to file <ff_name_datetime.log>")
             ("start-addr", "Partition search start address (hex)", cxxopts::value<std::string>())
             ("old", "Old search algorithm")
             ("ffpath", "fullflash path", cxxopts::value<std::string>())
@@ -164,9 +196,16 @@ int main(int argc, char *argv[]) {
 
         if (!parsed.count("ffpath")) {
             spdlog::error("Please specify fullflash path");
+
             fmt::print("\n{}", options.help());
 
             return EXIT_FAILURE;
+        }
+
+        ff_path = parsed["ffpath"].as<std::string>();
+
+        if (parsed.count("l")) {
+            setup_file_logger(ff_path);
         }
 
         if (parsed.count("d")) {
@@ -184,8 +223,6 @@ int main(int argc, char *argv[]) {
 
             override_platform = platform_raw;
         }
-
-        ff_path = parsed["ffpath"].as<std::string>();
 
         if (parsed.count("p")) {
             override_dst_path = parsed["p"].as<std::string>();
