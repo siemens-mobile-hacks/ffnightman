@@ -98,20 +98,33 @@ void Extractor::extract(std::filesystem::path path, bool overwrite) {
         throw FULLFLASH::Exception("Couldn't create directory '{}': {}", path.string(), error_code.message());
     }
 
-    const auto &fs_map = filesystem->get_filesystem_map();
+    const auto root = filesystem->get_root();
 
-    for (const auto &fs : fs_map) {
-        std::string fs_name = fs.first;
-        auto root           = fs.second;
+    for (const auto &disk_root : root->get_subdirs()) {
+        const std::string &fs_name = disk_root->get_name();
 
         spdlog::info("Extracting partition {}", fs_name);
 
         std::filesystem::path dir(path);
-
         dir.append(fs_name);
 
-        unpack(root, dir);
-    };
+        unpack(disk_root, dir);
+    }
+
+    // const auto &fs_map = filesystem->get_filesystem_map();
+
+    // for (const auto &fs : fs_map) {
+    //     std::string fs_name = fs.first;
+    //     auto root           = fs.second;
+
+    //     spdlog::info("Extracting partition {}", fs_name);
+
+    //     std::filesystem::path dir(path);
+
+    //     dir.append(fs_name);
+
+    //     unpack(root, dir);
+    // };
 }
 
 // https://gist.github.com/ichramm/3ffeaf7ba4f24853e9ecaf176da84566
