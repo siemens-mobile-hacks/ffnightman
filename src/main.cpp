@@ -377,5 +377,6 @@ int main(int argc, char *argv[]) {
         spdlog::error("Filesystem error: '{}' '{}' {}", e.path1().string(), e.path2().string(), e.what());
     }
 
+
     return 0;
 }
