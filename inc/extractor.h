@@ -21,6 +21,7 @@ class Extractor {
         static std::string                      utf8_filename(std::string file_name);
         static bool                             utf8_filename_check(const std::string &file_name, size_t &invalid_pos, size_t &invalid_size);
         static void                             utf8_filename_fix(std::string &file_name, size_t invalid_pos, size_t invalid_size, std::function<void()> warn_printer);
+        static void                             check_unacceptable_symols(std::string &file_name);
 
         void                                    set_time(const std::filesystem::path &path, const FULLFLASH::Filesystem::TimePoint &timestamp);
 };

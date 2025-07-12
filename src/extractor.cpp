@@ -19,6 +19,8 @@
     #error Unsupported operating system
 #endif
 
+static size_t broken_name_counter = 0;
+
 Extractor::Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLASH::Platform platform, bool skip_broken, bool skip_dup) :
     partitions(partitions) {
     
@@ -173,8 +175,6 @@ bool Extractor::utf8_filename_check(const std::string &file_name, size_t &invali
 }
 
 void Extractor::utf8_filename_fix(std::string &file_name, size_t invalid_pos, size_t invalid_size, std::function<void()> warn_printer) {
-    static size_t broken_name_counter = 0;
-
     if (warn_printer) {
         warn_printer();
     }
@@ -219,6 +219,39 @@ std::string Extractor::utf8_filename(std::string file_name) {
     return file_name;
 }
 
+void Extractor::check_unacceptable_symols(std::string &file_name) {
+#if defined(_WIN64)
+    const char unacceptable_symbols[] = { '*', '|', ':', '"', '<', '>', '?', '/', '\\', '\n', '\r'};
+#else
+    const char unacceptable_symbols[] = { '&', ';', '|', '*', '?', '\'', '"', '`', '[', ']', '(', ')', '$', '<', '>', '{', '}', '^', '#', '\\', '/', '%', '!', '\n', '\r'};
+#endif
+
+    constexpr size_t size_unacceptable = sizeof(unacceptable_symbols);
+
+    std::string original_name = file_name;
+
+    bool is_fixed = false;
+
+    for (char &c : file_name) {
+        for (size_t i = 0; i < size_unacceptable; ++i){
+            const char &unacceptable = unacceptable_symbols[i];
+
+            if (c == unacceptable) {
+                is_fixed = true;
+
+                c = '_';
+            }
+        }
+    }
+
+    if (is_fixed) {
+        file_name = fmt::format("brk_{}_{}", broken_name_counter++, file_name);
+
+        spdlog::warn("  Filename fixed '{} -> '{}", original_name, file_name);
+    }
+}
+
+
 void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::filesystem::path path) {
     if (System::is_directory_exists(path)) {
         static size_t dbl_counter = 0;
@@ -229,7 +262,6 @@ void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::filesyste
 
         path.replace_filename(new_filename);
     }
-
 
     std::error_code error_code;
 
@@ -252,8 +284,12 @@ void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::filesyste
 
         std::filesystem::path   file_path(path);
         std::ofstream           file_stream;
+        std::string             file_name = file->get_name();
 
-        file_path.append(utf8_filename(file->get_name()));
+        file_name = utf8_filename(file_name);
+        check_unacceptable_symols(file_name);
+
+        file_path.append(file_name);
 
         spdlog::info("  File      {}", file_path.string());
 
@@ -274,7 +310,13 @@ void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::filesyste
     for (const auto &subdir : subdirs) {
         std::filesystem::path dir(path);
 
-        dir.append(utf8_filename(subdir->get_name()));
+        std::string subdir_name = subdir->get_name();
+
+        subdir_name = utf8_filename(subdir_name);
+        check_unacceptable_symols(subdir_name);
+
+        dir.append(subdir_name);
+
         spdlog::info("  Directory {}", dir.string());
 
         unpack(subdir, dir);
