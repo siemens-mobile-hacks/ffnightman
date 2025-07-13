@@ -340,9 +340,9 @@ int main(int argc, char *argv[]) {
         std::filesystem::path data_path;
 
         if (imei.length() != 0) {
-            data_path.append(fmt::format("{}_{}_{}_{}", model, imei, ff_path.stem().string(), get_datetime()));
+            data_path.append(fmt::format("{}_{}_{}_{}", ff_path.string(), model, imei, get_datetime()));
         } else {
-            data_path.append(fmt::format("{}_{}_{}", model, ff_path.stem().string(), get_datetime()));
+            data_path.append(fmt::format("{}_{}_{}", ff_path.string(), model, get_datetime()));
         }
 
         if (override_dst_path.length() != 0) {
