@@ -373,11 +373,9 @@ int main(int argc, char *argv[]) {
 
         spdlog::info("Done");
 
-    } catch (const FULLFLASH::Exception &e) {
+    } catch (const FULLFLASH::BaseException &e) {
         spdlog::error("{}", e.what());
-    } catch (const FULLFLASH::Partitions::Exception &e) {
-        spdlog::error("{}", e.what());
-    } catch (const FULLFLASH::Filesystem::Exception &e) {
+    } catch (const Patterns::Exception &e) {
         spdlog::error("{}", e.what());
     } catch (const std::filesystem::filesystem_error &e) {
         spdlog::error("Filesystem error: '{}' '{}' {}", e.path1().string(), e.path2().string(), e.what());
