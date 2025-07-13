@@ -44,7 +44,7 @@ static void dump_partitions_info(const FULLFLASH::Partitions::Partitions &partit
         const std::string & name    = pair.first;
         const auto &        list    = pair.second.get_blocks();
 
-        spdlog::debug("{}:", name);
+        spdlog::debug("{} {} Blocks:", name, list.size());
 
         for (const auto &block : list) {
             const auto &header = block.get_header();
@@ -65,13 +65,11 @@ static void dump_partitions_short(const FULLFLASH::Partitions::Partitions &parti
     const auto &p_map = partitions.get_partitions();
     std::string partitions_list;
 
+    spdlog::info("Found {} partitions", p_map.size());
+
     for (const auto &pair : p_map) {
-        const std::string & name    = pair.first;
-
-        partitions_list += fmt::format("{} ", name);
+        spdlog::info("  {:8s} {}", pair.first, pair.second.get_blocks().size());
     }
-
-    spdlog::info("Found parts.: [ {}]", partitions_list);
 }
 
 #if defined(_WIN64)
