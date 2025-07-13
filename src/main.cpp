@@ -167,6 +167,7 @@ int main(int argc, char *argv[]) {
     bool        is_partitions_search_only   = false;
     bool        is_skip_broken              = false;
     bool        is_skip_dup                 = false;
+    bool        is_dump_data                = false;
 
     uint32_t    search_start_adddress       = 0;
 
@@ -182,6 +183,7 @@ int main(int argc, char *argv[]) {
             ("p,path", "Destination path. Data_<Model>_<IMEI> by default", cxxopts::value<std::string>())
             ("m,platform", "Specify platform (disable autodetect).\n[ " + supported_platforms + "]" , cxxopts::value<std::string>())
             ("l,log", "Save log to file <ff_name_datetime.log>")
+            ("dump", "Dump data to debug output")
             ("start-addr", "Partition search start address (hex)", cxxopts::value<std::string>())
             ("old", "Old search algorithm")
             ("ffpath", "fullflash path", cxxopts::value<std::string>())
@@ -271,6 +273,10 @@ int main(int argc, char *argv[]) {
 
             search_start_adddress = std::stoi(hex_str, nullptr, 16);
         }
+
+        if (parsed.count("dump")) {
+            is_dump_data = true;
+        }
     } catch (const cxxopts::exceptions::exception &e) {
         spdlog::error("{}", e.what());
 
@@ -359,7 +365,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        Extractor extractor(partitions, platform, is_skip_broken, is_skip_dup);
+        Extractor extractor(partitions, platform, is_skip_broken, is_skip_dup, is_dump_data);
 
         if (!is_filesystem_scan_only) {
             extractor.extract(data_path, is_overwrite);

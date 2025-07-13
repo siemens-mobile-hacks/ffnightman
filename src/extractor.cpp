@@ -21,7 +21,7 @@
 
 static size_t broken_name_counter = 0;
 
-Extractor::Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLASH::Platform platform, bool skip_broken, bool skip_dup) :
+Extractor::Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLASH::Platform platform, bool skip_broken, bool skip_dup,  bool dump_data) :
     partitions(partitions) {
     
     if (!partitions) {
@@ -31,7 +31,7 @@ Extractor::Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLAS
     filesystem = FULLFLASH::Filesystem::build(platform, partitions);
 
     if (filesystem) {
-        filesystem->load(skip_broken, skip_dup);
+        filesystem->load(skip_broken, skip_dup, dump_data);
     } else {
         throw FULLFLASH::Exception("fs == nullptr o_O");
     }
