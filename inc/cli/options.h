@@ -1,0 +1,37 @@
+#ifndef FFNIGHTMAN_CLI_OPTIONS_H
+#define FFNIGHTMAN_CLI_OPTIONS_H
+
+#include <filesystem>
+#include <string>
+#include <cstdint>
+
+#include "thirdparty/cxxopts.hpp"
+
+namespace CLI {
+
+typedef struct {
+    std::filesystem::path   ff_path;
+    std::string             override_dst_path;
+    std::string             override_platform;
+    bool                    is_debug                    = false;
+    bool                    is_overwrite                = false;
+    bool                    is_filesystem_scan_only     = false;
+    bool                    is_old_search_algorithm     = false;
+    bool                    is_partitions_search_only   = false;
+    bool                    is_skip_broken              = false;
+    bool                    is_skip_dup                 = false;
+    bool                    is_dump_data                = false;
+    bool                    is_log_to_file              = false;
+    uint32_t                search_start_adddress       = 0;
+
+} Options;
+
+constexpr const int EXIT_OK     = EXIT_SUCCESS;
+constexpr const int EXIT_FAIL   = EXIT_FAILURE;
+constexpr const int CONTINUE    = 100500;
+
+int parse(int argc, char *argv[], Options &opts);
+
+};
+
+#endif

@@ -26,7 +26,8 @@ include_directories(
 
 set(SRC_LIST 
     src/help.cpp
-    src/log.cpp
+    src/log/log.cpp
+    src/cli/options.cpp
     src/extractor.cpp
     src/main.cpp)
 
