@@ -221,22 +221,22 @@ std::string Extractor::utf8_filename(std::string file_name) {
 
 void Extractor::check_unacceptable_symols(std::string &file_name) {
 #if defined(_WIN64)
-    const char unacceptable_symbols[] = { '*', '|', ':', '"', '<', '>', '?', '/', '\\', '\n', '\r'};
+    const char forbidden_characters[] = { '*', '|', ':', '"', '<', '>', '?', '/', '\\', '\n', '\r'};
 #else
-    const char unacceptable_symbols[] = { '&', ';', '|', '*', '?', '\'', '"', '`', '[', ']', '(', ')', '$', '<', '>', '{', '}', '^', '#', '\\', '/', '%', '!', '\n', '\r'};
+    const char forbidden_characters[] = { '\\', '/', '\n', '\r'};
 #endif
 
-    constexpr size_t size_unacceptable = sizeof(unacceptable_symbols);
+    constexpr size_t size_forbidden = sizeof(forbidden_characters);
 
     std::string original_name = file_name;
 
     bool is_fixed = false;
 
     for (char &c : file_name) {
-        for (size_t i = 0; i < size_unacceptable; ++i){
-            const char &unacceptable = unacceptable_symbols[i];
+        for (size_t i = 0; i < size_forbidden; ++i){
+            const char &forbidden = forbidden_characters[i];
 
-            if (c == unacceptable) {
+            if (c == forbidden) {
                 is_fixed = true;
 
                 c = '_';
