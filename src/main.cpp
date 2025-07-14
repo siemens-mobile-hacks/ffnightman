@@ -184,7 +184,7 @@ int main(int argc, char *argv[]) {
 
         options.add_options()
             ("d,debug", "Enable debugging")
-            ("p,path", "Destination path. Data_<Model>_<IMEI> by default", cxxopts::value<std::string>())
+            ("p,path", "Destination path. './<FF_name>_<Model>_<IMEI>_<Date>' by default", cxxopts::value<std::string>())
             ("m,platform", "Specify platform (disable autodetect).\n[ " + supported_platforms + "]" , cxxopts::value<std::string>())
             ("l,log", "Save log to file <ff_name_datetime.log>")
             ("dump", "Dump data to debug output")
