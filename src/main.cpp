@@ -140,6 +140,10 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
+    if (options.is_debug) {
+        spdlog::set_level(spdlog::level::debug);
+    }
+
 #if defined(_WIN64)
     SetConsoleOutputCP(CP_UTF8);
 #endif
@@ -147,11 +151,6 @@ int main(int argc, char *argv[]) {
 #if defined(_WIN64) && defined(_MSC_VER)
     Help::set_utf8_locale();
 #endif
-
-    if (options.is_debug) {
-        spdlog::set_level(spdlog::level::debug);
-    }
-
     std::filesystem::path data_path = fmt::format("{}_data", options.ff_path.filename().string());
 
     if (options.override_dst_path.length() != 0) {
@@ -163,6 +162,10 @@ int main(int argc, char *argv[]) {
         
         if (options.is_log_to_file) {
             Log::setup(data_path);
+
+            if (options.is_debug) {
+                spdlog::set_level(spdlog::level::debug);
+            }
         }
 
         FULLFLASH::Platform                     platform;

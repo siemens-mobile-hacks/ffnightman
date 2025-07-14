@@ -113,7 +113,7 @@ void Extractor::utf8_filename_fix(std::string &file_name, size_t invalid_pos, si
             }
         }
     } else {
-        for (size_t i = invalid_pos; i > invalid_pos - invalid_size - 1; --i) {
+        for (ssize_t i = invalid_pos; i > (static_cast<ssize_t>(invalid_pos) - static_cast<ssize_t>(invalid_size) - 1); --i) {
             file_name[i] = 0x2D;
         }
     }
@@ -127,6 +127,9 @@ std::string Extractor::utf8_filename(std::string file_name) {
     size_t invalid_size = 0;
 
     if (!utf8_filename_check(file_name, invalid_pos, invalid_size)) {
+        std::string original_fname = file_name;
+
+        spdlog::debug("  Invalid pos: {}, Invalid size: {}", invalid_pos, invalid_size);
         utf8_filename_fix(file_name, invalid_pos, invalid_size, [&]() {
             std::string out;
 
@@ -139,6 +142,8 @@ std::string Extractor::utf8_filename(std::string file_name) {
             spdlog::warn("    Invalid character code replaced with 0x2D (-)");
             spdlog::warn("    brk_N_ prefix will be added");
         });
+
+        spdlog::warn("  Filename fixed {} -> {}", original_fname, file_name);
     }
 
     return file_name;
