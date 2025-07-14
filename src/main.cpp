@@ -1,25 +1,13 @@
 #include <ffshit/ex.h>
-
 #include <ffshit/version.h>
 #include <ffshit/system.h>
-#include <ffshit/log/logger.h>
 #include <ffshit/filesystem/ex.h>
 #include <ffshit/partition/partitions.h>
 #include <ffshit/partition/ex.h>
 
-#include <spdlog/spdlog.h>
-#include <spdlog/async.h>
-#include <spdlog/sinks/basic_file_sink.h>
-
-#if defined(_WIN64)
-    #include <spdlog/sinks/wincolor_sink.h>
-#else
-    #include <spdlog/sinks/ansicolor_sink.h>
-#endif
-
 #include "thirdparty/cxxopts.hpp"
 
-#include "log/interface.h"
+#include "log/log.h"
 #include "extractor.h"
 #include "help.h"
 
@@ -32,10 +20,6 @@
 #ifndef DEF_VERSION_STRING
     #define DEF_VERSION_STRING "unknown"
 #endif
-
-static constexpr char SPDLOG_LOG_PATTERN[] = "[%H:%M:%S.%e] %^[%=8l]%$ %v";
-
-Log::Interface::Ptr log_interface_ptr = Log::Interface::build();
 
 static void dump_partitions_info(const FULLFLASH::Partitions::Partitions &partitions) {
     const auto &p_map = partitions.get_partitions();
@@ -72,32 +56,6 @@ static void dump_partitions_short(const FULLFLASH::Partitions::Partitions &parti
     }
 }
 
-#if defined(_WIN64)
-static void set_locale() {
-    auto curr_locale = std::setlocale(LC_ALL, NULL);
-
-    if (!curr_locale) {
-        spdlog::warn("Couldn't get current locale");
-
-        return;
-    }
-
-    if (std::string(curr_locale) == "C") {
-        spdlog::warn("Current locale is C. Trying set to ru_RU.UTF-8");
-
-        const char* const locale_mame = "ru_RI.UTF-8";
-        if (!std::setlocale(LC_ALL, locale_mame)) {
-            spdlog::warn("Couldn't set locale to ru_RU.UTF-8");
-
-            return;
-        }
-
-        std::locale::global(std::locale(locale_mame));
-        spdlog::warn("Locale set to ru_RU.UTF-8");
-    }
-}
-#endif
-
 static std::string build_app_description() {
     std::string app = "Siemens filesystem extractor";
     std::string app_version(DEF_VERSION_STRING);
@@ -106,57 +64,71 @@ static std::string build_app_description() {
     return fmt::format("{}\n  Version:           {}\n  libffshit version: {}\n", app, app_version, libffshit_version);
 }
 
-static std::string get_datetime() {
-#if defined(__APPLE__)
-    auto now        = std::chrono::system_clock::now();
-    auto timestamp  = std::chrono::system_clock::to_time_t(now);
-#else
-    auto now        = std::chrono::high_resolution_clock::now();
-    auto timestamp  = std::chrono::high_resolution_clock::to_time_t(now);
-#endif
+static void setup_destination_path(std::filesystem::path path, bool overwrite) {
+    if (System::is_file_exists(path)) {
+        bool is_delete = false;
 
-    auto tm         = *std::localtime(&timestamp);
+        if (overwrite) {
+            is_delete = true;
+        } else {
+            is_delete = Help::input_yn([&]() {
+                spdlog::warn("'{}' is regular file. Delete? (y/n)", path.string());
+            });
+        }
 
-    std::ostringstream oss;
-    oss << std::put_time(&tm, "%Y-%m-%d_%H-%M-%S");
+        if (is_delete) {
+            std::error_code error_code;
 
-    return oss.str();
-}
+            bool r = System::remove_directory(path, error_code);
 
-static void setup_file_logger(std::filesystem::path ff_path) {
-    try  {
-        spdlog::init_thread_pool(8192, 1);
+            if (!r) {
+                throw FULLFLASH::Exception("Couldn't delete directory '{}': {}", path.string(), error_code.message());
+            }
+        } else {
+            return;
+        }
+    }
 
-        auto path       = ff_path.parent_path();
-        auto log_fname  = fmt::format("{}_{}.log", ff_path.stem().string(), get_datetime());
+    if (System::is_directory_exists(path)) {
+        bool is_delete = false;
 
-        path.append(log_fname);
+        if (overwrite) {
+            is_delete = true;
+        } else {
+            is_delete = Help::input_yn([&]() {
+                spdlog::warn("Directory '{}' already exists. Delete? (y/n)", path.string());
+            });
+        }
 
-#if defined(_WIN64)
-        auto stdout_sink    = std::make_shared<spdlog::sinks::wincolor_stdout_sink_mt>();
-#else
-        auto stdout_sink    = std::make_shared<spdlog::sinks::ansicolor_stdout_sink_mt>();
-#endif
-        auto file_sink      = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path.string(), true);
 
-        std::vector<spdlog::sink_ptr> sinks{stdout_sink, file_sink};
-        auto logger = std::make_shared<spdlog::async_logger>("ffshit", sinks.begin(), sinks.end(), spdlog::thread_pool(), spdlog::async_overflow_policy::block);
+        if (is_delete) {
+            std::error_code error_code;
 
-        logger->set_pattern(SPDLOG_LOG_PATTERN);
-        spdlog::register_logger(logger);
-        spdlog::set_default_logger(logger);
-    } catch (const spdlog::spdlog_ex &e) {
-        fmt::print("Couldn't init file logging: {}", e.what());
+            bool r = System::remove_directory(path, error_code);
 
-        exit(-1);
+            if (!r) {
+                throw FULLFLASH::Exception("Couldn't delete directory '{}': {}", path.string(), error_code.message());
+            }
+        } else {
+            return;
+        }
+    }
+
+    std::error_code error_code;
+
+    bool r = System::create_directory(path, 
+                        std::filesystem::perms::owner_read | std::filesystem::perms::owner_write | std::filesystem::perms::owner_exec |
+                        std::filesystem::perms::group_read | std::filesystem::perms::group_exec |
+                        std::filesystem::perms::others_read | std::filesystem::perms::others_exec, error_code);
+
+    if (!r) {
+        throw FULLFLASH::Exception("Couldn't create directory '{}': {}", path.string(), error_code.message());
     }
 }
 
 int main(int argc, char *argv[]) {
-    // spdlog::set_pattern("\033[30;1m[%H:%M:%S.%e]\033[0;39m %^[%=8l]%$ \033[1;37m%v\033[0;39m");
-    spdlog::set_pattern(SPDLOG_LOG_PATTERN);
-
-    FULLFLASH::Log::Logger::init(log_interface_ptr);
+    Log::init();
+    Log::setup();
 
     cxxopts::Options options(argv[0], build_app_description());
 
@@ -172,6 +144,7 @@ int main(int argc, char *argv[]) {
     bool        is_skip_broken              = false;
     bool        is_skip_dup                 = false;
     bool        is_dump_data                = false;
+    bool        is_log_to_file              = false;
 
     uint32_t    search_start_adddress       = 0;
 
@@ -184,9 +157,9 @@ int main(int argc, char *argv[]) {
 
         options.add_options()
             ("d,debug", "Enable debugging")
-            ("p,path", "Destination path. './<FF_name>_<Model>_<IMEI>_<Date>' by default", cxxopts::value<std::string>())
+            ("p,path", "Destination path. './<FF_file_name>_data' by default", cxxopts::value<std::string>())
             ("m,platform", "Specify platform (disable autodetect).\n[ " + supported_platforms + "]" , cxxopts::value<std::string>())
-            ("l,log", "Save log to file <ff_name_datetime.log>")
+            ("l,log", "Save log to file './<FF_file_name>/extracting.log'")
             ("dump", "Dump data to debug output")
             ("start-addr", "Partition search start address (hex)", cxxopts::value<std::string>())
             ("old", "Old search algorithm")
@@ -220,7 +193,7 @@ int main(int argc, char *argv[]) {
         ff_path = parsed["ffpath"].as<std::string>();
 
         if (parsed.count("l")) {
-            setup_file_logger(ff_path);
+            is_log_to_file = true;
         }
 
         if (parsed.count("d")) {
@@ -291,16 +264,31 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-#if defined(_WIN32)
+#if defined(_WIN64)
     SetConsoleOutputCP(CP_UTF8);
-    set_locale();
+#endif
+
+#if defined(_WIN64) && defined(_MSC_VER)
+    Help::set_utf8_locale();
 #endif
 
     if (is_debug) {
         spdlog::set_level(spdlog::level::debug);
     }
 
+    std::filesystem::path data_path = fmt::format("{}_data", ff_path.filename().string());
+
+    if (override_dst_path.length() != 0) {
+        data_path = override_dst_path;
+    }
+
     try {
+        setup_destination_path(data_path, is_overwrite);
+        
+        if (is_log_to_file) {
+            Log::setup(data_path);
+        }
+
         FULLFLASH::Platform                     platform;
         FULLFLASH::Partitions::Partitions::Ptr  partitions;
 
@@ -341,22 +329,6 @@ int main(int argc, char *argv[]) {
             return EXIT_SUCCESS;
         }
 
-        std::filesystem::path data_path;
-
-        if (imei.length() != 0) {
-            data_path.append(fmt::format("{}_{}_{}_{}", ff_path.filename().string(), model, imei, get_datetime()));
-        } else {
-            data_path.append(fmt::format("{}_{}_{}", ff_path.filename().string(), model, get_datetime()));
-        }
-
-        if (override_dst_path.length() != 0) {
-            spdlog::warn("Destination path override '{}' -> '{}'", data_path.string(), override_dst_path);
-
-            data_path = override_dst_path;
-        } else {
-            spdlog::info("Destination path: {}", data_path.string());
-        }
-
         if (platform == FULLFLASH::Platform::SGOLD2_ELKA && !is_filesystem_scan_only) {
             bool is_continue = false;
 
@@ -372,6 +344,8 @@ int main(int argc, char *argv[]) {
         Extractor extractor(partitions, platform, is_skip_broken, is_skip_dup, is_dump_data);
 
         if (!is_filesystem_scan_only) {
+            spdlog::info("Destination path: {}", data_path.string());
+
             extractor.extract(data_path, is_overwrite);
         }
 

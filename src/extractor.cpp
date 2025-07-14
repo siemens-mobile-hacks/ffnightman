@@ -40,66 +40,6 @@ Extractor::Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLAS
 void Extractor::extract(std::filesystem::path path, bool overwrite) {
     spdlog::info("Extracting filesystem");
 
-    if (System::is_file_exists(path)) {
-        bool is_delete = false;
-
-        if (overwrite) {
-            is_delete = true;
-        } else {
-            is_delete = Help::input_yn([&]() {
-                spdlog::warn("'{}' is regular file. Delete? (y/n)", path.string());
-            });
-        }
-
-        if (is_delete) {
-            std::error_code error_code;
-
-            bool r = System::remove_directory(path, error_code);
-
-            if (!r) {
-                throw FULLFLASH::Exception("Couldn't delete directory '{}': {}", path.string(), error_code.message());
-            }
-        } else {
-            return;
-        }
-    }
-
-    if (System::is_directory_exists(path)) {
-        bool is_delete = false;
-
-        if (overwrite) {
-            is_delete = true;
-        } else {
-            is_delete = Help::input_yn([&]() {
-                spdlog::warn("Directory '{}' already exists. Delete? (y/n)", path.string());
-            });
-        }
-
-
-        if (is_delete) {
-            std::error_code error_code;
-
-            bool r = System::remove_directory(path, error_code);
-
-            if (!r) {
-                throw FULLFLASH::Exception("Couldn't delete directory '{}': {}", path.string(), error_code.message());
-            }
-        } else {
-            return;
-        }
-    }
-
-    std::error_code error_code;
-
-    bool r = System::create_directory(path, 
-                        std::filesystem::perms::owner_read | std::filesystem::perms::owner_write | std::filesystem::perms::owner_exec |
-                        std::filesystem::perms::group_read | std::filesystem::perms::group_exec |
-                        std::filesystem::perms::others_read | std::filesystem::perms::others_exec, error_code);
-
-    if (!r) {
-        throw FULLFLASH::Exception("Couldn't create directory '{}': {}", path.string(), error_code.message());
-    }
-
     const auto root = filesystem->get_root();
 
     for (const auto &disk_root : root->get_subdirs()) {
@@ -112,21 +52,6 @@ void Extractor::extract(std::filesystem::path path, bool overwrite) {
 
         unpack(disk_root, dir);
     }
-
-    // const auto &fs_map = filesystem->get_filesystem_map();
-
-    // for (const auto &fs : fs_map) {
-    //     std::string fs_name = fs.first;
-    //     auto root           = fs.second;
-
-    //     spdlog::info("Extracting partition {}", fs_name);
-
-    //     std::filesystem::path dir(path);
-
-    //     dir.append(fs_name);
-
-    //     unpack(root, dir);
-    // };
 }
 
 // https://gist.github.com/ichramm/3ffeaf7ba4f24853e9ecaf176da84566
