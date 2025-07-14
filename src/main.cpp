@@ -107,8 +107,14 @@ static std::string build_app_description() {
 }
 
 static std::string get_datetime() {
+#if defined(__APPLE__)
+    auto now        = std::chrono::system_clock::now();
+    auto timestamp  = std::chrono::system_clock::to_time_t(now);
+#else
     auto now        = std::chrono::high_resolution_clock::now();
     auto timestamp  = std::chrono::high_resolution_clock::to_time_t(now);
+#endif
+
     auto tm         = *std::localtime(&timestamp);
 
     std::ostringstream oss;
