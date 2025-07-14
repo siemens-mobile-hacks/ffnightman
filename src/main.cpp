@@ -127,8 +127,14 @@ static void setup_destination_path(std::filesystem::path path, bool overwrite) {
 }
 
 int main(int argc, char *argv[]) {
-    Log::init();
-    Log::setup();
+    try {
+        Log::init();
+        Log::setup();
+    } catch (const spdlog::spdlog_ex &e) {
+        fmt::print("Log init error: {}", e.what());
+
+        return -1;
+    }
 
     cxxopts::Options options(argv[0], build_app_description());
 
@@ -350,15 +356,27 @@ int main(int argc, char *argv[]) {
         }
 
         spdlog::info("Done");
+    } catch (const spdlog::spdlog_ex &e) {
+        fmt::print("Log init error: {}", e.what());
 
+        return -1;
     } catch (const FULLFLASH::BaseException &e) {
         spdlog::error("{}", e.what());
+
+        return -2;
     } catch (const Patterns::Exception &e) {
         spdlog::error("{}", e.what());
+
+        return -3;
     } catch (const std::filesystem::filesystem_error &e) {
         spdlog::error("Filesystem error: '{}' '{}' {}", e.path1().string(), e.path2().string(), e.what());
-    }
 
+        return -4;
+    } catch (const std::exception &e) {
+        spdlog::error("{}", e.what());
+
+        return -5;
+    }
 
     return 0;
 }
