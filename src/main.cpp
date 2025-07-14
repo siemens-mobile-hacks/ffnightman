@@ -117,9 +117,9 @@ int main(int argc, char *argv[]) {
         Log::init();
         Log::setup();
     } catch (const spdlog::spdlog_ex &e) {
-        fmt::print("Log init error: {}", e.what());
+        fmt::print("Log init error: {}\n", e.what());
 
-        return -1;
+        return EXIT_FAILURE;
     }
 
     CLI::Options options;
@@ -227,26 +227,26 @@ int main(int argc, char *argv[]) {
 
         spdlog::info("Done");
     } catch (const spdlog::spdlog_ex &e) {
-        fmt::print("Log init error: {}", e.what());
+        fmt::print("Log init error: {}\n", e.what());
 
-        return -1;
+        return EXIT_FAILURE;
     } catch (const FULLFLASH::BaseException &e) {
         spdlog::error("{}", e.what());
 
-        return -2;
+        return EXIT_FAILURE;
     } catch (const Patterns::Exception &e) {
         spdlog::error("{}", e.what());
 
-        return -3;
+        return EXIT_FAILURE;
     } catch (const std::filesystem::filesystem_error &e) {
         spdlog::error("Filesystem error: '{}' '{}' {}", e.path1().string(), e.path2().string(), e.what());
 
-        return -4;
+        return EXIT_FAILURE;
     } catch (const std::exception &e) {
         spdlog::error("{}", e.what());
 
-        return -5;
+        return EXIT_FAILURE;
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }
