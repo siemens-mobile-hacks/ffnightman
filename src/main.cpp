@@ -158,9 +158,9 @@ int main(int argc, char *argv[]) {
     }
 
     try {
-        setup_destination_path(data_path, options.is_overwrite);
-        
         if (options.is_log_to_file) {
+            setup_destination_path(data_path, options.is_overwrite);
+
             Log::setup(data_path);
 
             if (options.is_debug) {
@@ -224,6 +224,10 @@ int main(int argc, char *argv[]) {
 
         if (!options.is_filesystem_scan_only) {
             spdlog::info("Destination path: {}", data_path.string());
+
+            if (!options.is_log_to_file) {
+                setup_destination_path(data_path, options.is_overwrite);
+            }
 
             extractor.extract(data_path, options.is_overwrite);
         }
