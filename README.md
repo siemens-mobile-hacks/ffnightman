@@ -18,18 +18,18 @@
 
 ```
 Siemens filesystem extractor
-  Version:           0.0.2-b0d95bd-unstable
-  libffshit version: 0.0.2-d598d70-unstable
+  Version:           0.0.2-8dd3c70-unstable
+  libffshit version: 0.0.2-1cb1102-unstable
 
 Usage:
   build/ffnightman [OPTION...] positional parameters
 
   -d, --debug           Enable debugging
-  -p, --path arg        Destination path.
-                        './<FF_name>_<Model>_<IMEI>_<Date>' by default
+  -p, --path arg        Destination path. './<FF_file_name>_data' by 
+                        default
   -m, --platform arg    Specify platform (disable autodetect).
                         [ SGOLD2_ELKA SGOLD2 SGOLD EGOLD_CE ]
-  -l, --log             Save log to file <ff_name_datetime.log>
+  -l, --log             Save log to file './<FF_file_name>/extracting.log'
       --dump            Dump data to debug output
       --start-addr arg  Partition search start address (hex)
       --old             Old search algorithm
