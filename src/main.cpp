@@ -213,17 +213,17 @@ int main(int argc, char *argv[]) {
             return EXIT_SUCCESS;
         }
 
-        if (platform == FULLFLASH::Platform::SGOLD2_ELKA && !options.is_filesystem_scan_only) {
-            bool is_continue = false;
+        // if (platform == FULLFLASH::Platform::SGOLD2_ELKA && !options.is_filesystem_scan_only) {
+        //     bool is_continue = false;
 
-            is_continue = Help::input_yn([]() {
-                spdlog::warn("SGOLD2_ELKA platform unsupported yet. Continue (y/n)?");
-            });
+        //     is_continue = Help::input_yn([]() {
+        //         spdlog::warn("SGOLD2_ELKA platform unsupported yet. Continue (y/n)?");
+        //     });
 
-            if (!is_continue) {
-                return EXIT_SUCCESS;
-            }
-        }
+        //     if (!is_continue) {
+        //         return EXIT_SUCCESS;
+        //     }
+        // }
 
         Extractor extractor(partitions, platform, options.is_skip_broken, options.is_skip_dup, options.is_dump_data);
 
