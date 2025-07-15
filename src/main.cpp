@@ -50,7 +50,7 @@ static void dump_partitions_short(const FULLFLASH::Partitions::Partitions &parti
     }
 }
 
-static void setup_destination_path(std::filesystem::path path, bool overwrite) {
+static bool setup_destination_path(std::filesystem::path path, bool overwrite) {
     if (System::is_file_exists(path)) {
         bool is_delete = false;
 
@@ -71,7 +71,7 @@ static void setup_destination_path(std::filesystem::path path, bool overwrite) {
                 throw FULLFLASH::Exception("Couldn't delete directory '{}': {}", path.string(), error_code.message());
             }
         } else {
-            return;
+            return false;
         }
     }
 
@@ -96,7 +96,7 @@ static void setup_destination_path(std::filesystem::path path, bool overwrite) {
                 throw FULLFLASH::Exception("Couldn't delete directory '{}': {}", path.string(), error_code.message());
             }
         } else {
-            return;
+            return false;
         }
     }
 
@@ -110,6 +110,8 @@ static void setup_destination_path(std::filesystem::path path, bool overwrite) {
     if (!r) {
         throw FULLFLASH::Exception("Couldn't create directory '{}': {}", path.string(), error_code.message());
     }
+
+    return true;
 }
 
 int main(int argc, char *argv[]) {
@@ -151,6 +153,7 @@ int main(int argc, char *argv[]) {
 #if defined(_WIN64) && defined(_MSC_VER)
     Help::set_utf8_locale();
 #endif
+
     std::filesystem::path data_path = fmt::format("{}_data", options.ff_path.filename().string());
 
     if (options.override_dst_path.length() != 0) {
@@ -159,7 +162,9 @@ int main(int argc, char *argv[]) {
 
     try {
         if (options.is_log_to_file) {
-            setup_destination_path(data_path, options.is_overwrite);
+            if (!setup_destination_path(data_path, options.is_overwrite)) {
+                return EXIT_SUCCESS;
+            }
 
             Log::setup(data_path);
 
@@ -226,7 +231,9 @@ int main(int argc, char *argv[]) {
             spdlog::info("Destination path: {}", data_path.string());
 
             if (!options.is_log_to_file) {
-                setup_destination_path(data_path, options.is_overwrite);
+                if (!setup_destination_path(data_path, options.is_overwrite)) {
+                    return EXIT_SUCCESS;
+                }
             }
 
             extractor.extract(data_path, options.is_overwrite);
