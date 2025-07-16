@@ -29,7 +29,7 @@ Usage:
                         default
   -m, --platform arg    Specify platform (disable autodetect).
                         [ SGOLD2_ELKA SGOLD2 SGOLD EGOLD_CE ]
-  -l, --log             Save log to file './<dst_path>/extracting.log'
+  -l, --log             Save log to file '<dst_path>/extracting.log'
       --dump            Dump data to debug output
       --start-addr arg  Partition search start address (hex)
       --old             Old search algorithm
