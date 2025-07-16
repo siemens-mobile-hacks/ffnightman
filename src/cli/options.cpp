@@ -31,7 +31,7 @@ int parse(int argc, char *argv[], Options &opts) {
         ("d,debug", "Enable debugging")
         ("p,path", "Destination path. './<FF_file_name>_data' by default", cxxopts::value<std::string>())
         ("m,platform", "Specify platform (disable autodetect).\n[ " + supported_platforms + "]" , cxxopts::value<std::string>())
-        ("l,log", "Save log to file './<FF_file_name>/extracting.log'")
+        ("l,log", "Save log to file './<dst_path>/extracting.log'")
         ("dump", "Dump data to debug output")
         ("start-addr", "Partition search start address (hex)", cxxopts::value<std::string>())
         ("old", "Old search algorithm")

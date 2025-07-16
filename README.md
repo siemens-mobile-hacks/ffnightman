@@ -9,7 +9,7 @@
 - SGOLD2 ELKA \
 Требует тестирования
 - EGOLD с Card-Explorer \
-Только с простым поиском блоком (работает только на фуллах без патча на диск)
+Только с простым поиском блоков (работает только на фуллах без патча на диск)
 
 ## Как это использовать
 ```./ffnightman <options> <fullflash path>```
@@ -18,18 +18,18 @@
 
 ```
 Siemens filesystem extractor
-  Version:           0.0.2-8dd3c70-unstable
-  libffshit version: 0.0.2-1cb1102-unstable
+  Version:           0.0.2-131db45-unstable
+  libffshit version: 0.0.2-3e06659-unstable
 
 Usage:
-  build/ffnightman [OPTION...] positional parameters
+  ./ffnightman [OPTION...] positional parameters
 
   -d, --debug           Enable debugging
-  -p, --path arg        Destination path. './<FF_file_name>_data' by 
+  -p, --path arg        Destination path. './<FF_file_name>_data' by
                         default
   -m, --platform arg    Specify platform (disable autodetect).
                         [ SGOLD2_ELKA SGOLD2 SGOLD EGOLD_CE ]
-  -l, --log             Save log to file './<FF_file_name>_data/extracting.log'
+  -l, --log             Save log to file './<dst_path>/extracting.log'
       --dump            Dump data to debug output
       --start-addr arg  Partition search start address (hex)
       --old             Old search algorithm
