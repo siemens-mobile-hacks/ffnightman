@@ -229,7 +229,9 @@ void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::filesyste
             throw FULLFLASH::Exception("Couldn't create file '{}': {}", file_path.string(), strerror(errno));
         }
 
-        file_stream.write(file->get_data().get_data().get(), file->get_data().get_size());
+        if (file->get_size() != 0) {
+            file_stream.write(file->get_data().get_data().get(), file->get_data().get_size());
+        }
 
         file_stream.close();
 
