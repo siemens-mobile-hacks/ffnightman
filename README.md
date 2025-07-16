@@ -6,10 +6,10 @@
 ##### Поддерживаемые платформы:
 - SGOLD
 - SGOLD2
-- EGOLD с Card-Explorer (эксперементально в main ветке)
-
-#####  В разработке/планах на 2035:
-- SGOLD2 ELKA
+- SGOLD2 ELKA \
+Требует тестирования
+- EGOLD с Card-Explorer \
+Только с простым поиском блоком (работает только на фуллах без патча на диск)
 
 ## Как это использовать
 ```./ffnightman <options> <fullflash path>```
@@ -29,7 +29,7 @@ Usage:
                         default
   -m, --platform arg    Specify platform (disable autodetect).
                         [ SGOLD2_ELKA SGOLD2 SGOLD EGOLD_CE ]
-  -l, --log             Save log to file './<FF_file_name>/extracting.log'
+  -l, --log             Save log to file './<FF_file_name>_data/extracting.log'
       --dump            Dump data to debug output
       --start-addr arg  Partition search start address (hex)
       --old             Old search algorithm
