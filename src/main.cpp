@@ -27,7 +27,7 @@ static void dump_partitions_info(const FULLFLASH::Partitions::Partitions &partit
         for (const auto &block : list) {
             const auto &header = block.get_header();
 
-            spdlog::debug("  {:8s} Addr: 0x{:08X}, size: {}, Unk1: {:08X}, Unk2: {:08X}, Unk3: {:08X}, Unk4: {:08X}", 
+            spdlog::debug("  {:8s} Addr: 0x{:08X}, size: {}, Unk1: {:04X}, Unk2: {:04X}, Unk3: {:08X}, Unk4: {:04X}",
                 header.name,
                 block.get_addr(),
                 block.get_size(),
