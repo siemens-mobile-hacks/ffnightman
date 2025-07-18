@@ -9,7 +9,9 @@
 
 namespace CLI {
 
-typedef struct {
+struct Options {
+    Options() = default;
+
     std::filesystem::path   ff_path;
     std::string             override_dst_path;
     std::string             override_platform;
@@ -23,8 +25,7 @@ typedef struct {
     bool                    is_dump_data                = false;
     bool                    is_log_to_file              = false;
     uint32_t                search_start_adddress       = 0;
-
-} Options;
+};
 
 constexpr const int EXIT_OK     = EXIT_SUCCESS;
 constexpr const int EXIT_FAIL   = EXIT_FAILURE;
