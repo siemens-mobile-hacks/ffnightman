@@ -32,7 +32,7 @@ Usage:
   -l, --log             Save log to file '<dst_path>/extracting.log'
       --dump            Dump data to debug output
       --start-addr arg  Partition search start address (hex)
-      --part arg        Partiton to extract (may be several)
+      --part arg        Partition to extract (may be several)
       --old             Old search algorithm
   -f, --partitions      partitions search for debugging purposes only
   -s, --scan            filesystem scanning for debugging purposes only

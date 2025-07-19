@@ -34,7 +34,7 @@ int parse(int argc, char *argv[], Options &opts) {
         ("l,log", "Save log to file '<dst_path>/extracting.log'")
         ("dump", "Dump data to debug output")
         ("start-addr", "Partition search start address (hex)", cxxopts::value<std::string>())
-        ("part", "Partiton to extract (may be several)", cxxopts::value<std::vector<std::string>>())
+        ("part", "Partition to extract (may be several)", cxxopts::value<std::vector<std::string>>())
         ("old", "Old search algorithm")
         ("ffpath", "fullflash path", cxxopts::value<std::string>())
         ("f,partitions", "partitions search for debugging purposes only")
