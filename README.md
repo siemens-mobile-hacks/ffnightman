@@ -18,11 +18,11 @@
 
 ```
 Siemens filesystem extractor
-  Version:           0.0.2-131db45-unstable
-  libffshit version: 0.0.2-3e06659-unstable
+  Version:           0.0.2-6973823-unstable
+  libffshit version: 0.0.2-0ac98d7-unstable
 
 Usage:
-  ./ffnightman [OPTION...] positional parameters
+  ffnightman [OPTION...] positional parameters
 
   -d, --debug           Enable debugging
   -p, --path arg        Destination path. './<FF_file_name>_data' by
@@ -32,13 +32,14 @@ Usage:
   -l, --log             Save log to file '<dst_path>/extracting.log'
       --dump            Dump data to debug output
       --start-addr arg  Partition search start address (hex)
+      --part arg        Partiton to extract (may be several)
       --old             Old search algorithm
   -f, --partitions      partitions search for debugging purposes only
   -s, --scan            filesystem scanning for debugging purposes only
   -o, --overwrite       Always delete data directory if exists
       --skip            Skip broken file/directory
       --skip-dup        Skip duplicate id
-      --proto           For fullflash from prototypes. Enable all skip
+      --skip-all        Enable all skip
   -h, --help            Help
 ```
 
