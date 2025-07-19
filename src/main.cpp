@@ -1,6 +1,7 @@
 #include <ffshit/ex.h>
 #include <ffshit/system.h>
 #include <ffshit/filesystem/ex.h>
+#include <ffshit/fullflash.h>
 #include <ffshit/partition/partitions.h>
 #include <ffshit/partition/ex.h>
 
@@ -43,7 +44,7 @@ static void dump_partitions_short(const FULLFLASH::Partitions::Partitions &parti
     const auto &p_map = partitions.get_partitions();
     std::string partitions_list;
 
-    spdlog::info("Found {} partitions", p_map.size());
+    spdlog::info("Found {} FFS partitions", p_map.size());
 
     for (const auto &pair : p_map) {
         spdlog::info("  {:8s} {}", pair.first, pair.second.get_blocks().size());
@@ -174,6 +175,7 @@ int main(int argc, char *argv[]) {
         }
 
         FULLFLASH::Platform                     platform;
+        FULLFLASH::FULLFLASH::Ptr               fullflash;
         FULLFLASH::Partitions::Partitions::Ptr  partitions;
 
         std::string imei;
@@ -181,27 +183,35 @@ int main(int argc, char *argv[]) {
 
         if (options.override_platform.length()) {
             platform    = FULLFLASH::StringToPlatform.at(options.override_platform);
-
-            partitions = FULLFLASH::Partitions::Partitions::build(options.ff_path, platform, options.is_old_search_algorithm, options.search_start_adddress);
-
-            model       = partitions->get_model();
+    
+            fullflash = FULLFLASH::FULLFLASH::build(options.ff_path, platform);
         } else {
-            partitions = FULLFLASH::Partitions::Partitions::build(options.ff_path, options.is_old_search_algorithm, options.search_start_adddress);
-
-            platform    = partitions->get_platform();
-            imei        = partitions->get_imei();
-            model       = partitions->get_model();
-
-            spdlog::info("Platform:     {}", FULLFLASH::PlatformToString.at(platform));
+            fullflash = FULLFLASH::FULLFLASH::build(options.ff_path);
         }
 
+        const auto &detector = fullflash->get_detector();
+
+        model       = detector.get_model();
+        imei        = detector.get_imei();
+        platform    = detector.get_platform();
+
+        if (platform == FULLFLASH::Platform::UNK) {
+            throw FULLFLASH::Exception("Unknown platform");
+        }
+
+        spdlog::info("Platform: {}", FULLFLASH::PlatformToString.at(platform));
+
         if (model.length()) {
-            spdlog::info("Model:        {}", model);
+            spdlog::info("Model:    {}", model);
         }
 
         if (imei.length()) {
-            spdlog::info("IMEI:         {}", imei);
+            spdlog::info("IMEI:     {}", imei);
         }
+
+        fullflash->load_partitions(options.is_old_search_algorithm, options.search_start_adddress);
+
+        partitions = fullflash->get_partitions();
 
         if (options.is_debug) {
             dump_partitions_info(*partitions);
@@ -212,18 +222,6 @@ int main(int argc, char *argv[]) {
         if (options.is_partitions_search_only) {
             return EXIT_SUCCESS;
         }
-
-        // if (platform == FULLFLASH::Platform::SGOLD2_ELKA && !options.is_filesystem_scan_only) {
-        //     bool is_continue = false;
-
-        //     is_continue = Help::input_yn([]() {
-        //         spdlog::warn("SGOLD2_ELKA platform unsupported yet. Continue (y/n)?");
-        //     });
-
-        //     if (!is_continue) {
-        //         return EXIT_SUCCESS;
-        //     }
-        // }
 
         Extractor extractor(partitions, platform, options.is_skip_broken, options.is_skip_dup, options.is_dump_data);
 
