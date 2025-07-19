@@ -55,7 +55,7 @@ static void setup_console_and_file_log(const std::filesystem::path &log_path) {
 namespace Log {
 
 void init() {
-    spdlog::init_thread_pool(16384, 1);
+    spdlog::init_thread_pool(1024, 1);
 
     FULLFLASH::Log::Logger::init(log_interface_ptr);
 }
