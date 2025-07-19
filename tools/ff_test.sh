@@ -13,6 +13,19 @@ then
     exit -1
 fi;
 
+if [ -z $3 ]; then
+    VALGRIND_CHECK=false
+else
+    if which valgrind 2>/dev/null; then
+        echo "Valgrind check endabled"
+    else
+        echo "Valgrind not installed"
+        exit -1
+    fi
+
+    VALGRIND_CHECK=true
+fi
+
 set -e
 
 PLATFORM="${2,,}"
@@ -41,7 +54,17 @@ check_dir() {
     for FILE in $FILES
     do
         echo Processing "$FILE"
-        $NIGHTMAN_PATH -l -o "$FILE"
+
+        if $VALGRIND_CHECK ; then
+            valgrind \
+                --error-exitcode=-1 \
+                --leak-check=full \
+                --show-leak-kinds=all \
+                --track-origins=yes \
+                $NIGHTMAN_PATH -l -o "$FILE"
+        else
+            $NIGHTMAN_PATH -l -o "$FILE"
+        fi
     done
 }
 
