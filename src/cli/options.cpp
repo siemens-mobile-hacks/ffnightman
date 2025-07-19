@@ -42,7 +42,7 @@ int parse(int argc, char *argv[], Options &opts) {
         ("o,overwrite", "Always delete data directory if exists")
         ("skip", "Skip broken file/directory")
         ("skip-dup", "Skip duplicate id")
-        ("proto", "For fullflash from prototypes. Enable all skip")
+        ("skip-all", "Enable all skip")
         ("h,help", "Help");
 
     options.parse_positional({"ffpath"});
@@ -113,7 +113,7 @@ int parse(int argc, char *argv[], Options &opts) {
         opts.is_skip_dup = true;
     }
 
-    if (parsed.count("proto")) {
+    if (parsed.count("skip-all")) {
         opts.is_skip_broken  = true;
         opts.is_skip_dup     = true;
     }
