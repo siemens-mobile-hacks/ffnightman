@@ -34,6 +34,7 @@ int parse(int argc, char *argv[], Options &opts) {
         ("l,log", "Save log to file '<dst_path>/extracting.log'")
         ("dump", "Dump data to debug output")
         ("start-addr", "Partition search start address (hex)", cxxopts::value<std::string>())
+        ("part", "Partiton to extract (may be several)", cxxopts::value<std::vector<std::string>>())
         ("old", "Old search algorithm")
         ("ffpath", "fullflash path", cxxopts::value<std::string>())
         ("f,partitions", "partitions search for debugging purposes only")
@@ -121,6 +122,10 @@ int parse(int argc, char *argv[], Options &opts) {
         std::string hex_str = parsed["start-addr"].as<std::string>();
 
         opts.search_start_adddress = std::stoi(hex_str, nullptr, 16);
+    }
+
+    if (parsed.count("part")) {
+        opts.parts_to_extract = parsed["part"].as<std::vector<std::string>>();
     }
 
     if (parsed.count("dump")) {

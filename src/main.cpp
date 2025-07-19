@@ -232,7 +232,7 @@ int main(int argc, char *argv[]) {
             return EXIT_SUCCESS;
         }
 
-        Extractor extractor(partitions, platform, options.is_skip_broken, options.is_skip_dup, options.is_dump_data);
+        Extractor extractor(partitions, platform, options);
 
         if (!options.is_filesystem_scan_only) {
             spdlog::info("Destination path: {}", data_path.string());

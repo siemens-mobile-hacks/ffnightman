@@ -2,6 +2,7 @@
 #define FFNIGHTMAN_EXTRACTOR_H
 
 #include <ffshit/filesystem/platform/platform.h>
+#include "cli/options.h"
 
 #include <filesystem>
 #include <functional>
@@ -9,7 +10,7 @@
 class Extractor {
     public:
         Extractor() = delete;
-        Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLASH::Platform platform, bool skip_broken, bool skip_dup, bool dump_data);
+        Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLASH::Platform platform, const CLI::Options &options);
 
         void                                    extract(std::filesystem::path path, bool overwrite);
         void                                    unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::filesystem::path path);
