@@ -116,15 +116,7 @@ static bool setup_destination_path(std::filesystem::path path, bool overwrite) {
     return true;
 }
 
-void signal_handler(int sign) {
-    exit(0);
-}
-
 int main(int argc, char *argv[]) {
-    signal(SIGINT,  signal_handler);
-    signal(SIGTERM, signal_handler);
-    signal(SIGHUP,  signal_handler);
-
     try {
         Log::init();
         Log::setup();
