@@ -17,7 +17,7 @@ if [ -z $3 ]; then
     VALGRIND_CHECK=false
 else
     if which valgrind 2>/dev/null; then
-        echo "Valgrind check endabled"
+        echo "Valgrind check enabled"
     else
         echo "Valgrind not installed"
         exit -1
