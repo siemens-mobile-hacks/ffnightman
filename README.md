@@ -18,14 +18,14 @@
 
 ```
 Siemens filesystem extractor
-  Version:           0.0.2-6973823-unstable
-  libffshit version: 0.0.2-0ac98d7-unstable
+  Version:           0.0.2-0b90a0c-unstable
+  libffshit version: 0.0.2-6ca41c6-unstable
 
 Usage:
   ffnightman [OPTION...] positional parameters
 
   -d, --debug           Enable debugging
-  -p, --path arg        Destination path. './<FF_file_name>_data' by
+  -p, --path arg        Destination path. './<FF_file_name>_data' by 
                         default
   -m, --platform arg    Specify platform (disable autodetect).
                         [ SGOLD2_ELKA SGOLD2 SGOLD EGOLD_CE ]
@@ -41,7 +41,7 @@ Usage:
       --skip-dup        Skip duplicate id
       --skip-all        Enable all skip
   -h, --help            Help
-```
+  ```
 
 ## Бинарные и не очень сборки
 - Ubuntu 24.04: см. Releases
@@ -93,3 +93,28 @@ Usage:
     ```
 ### Windows
 Coming soon
+
+### Спасибы
+- Описание таблицы разметки дисков/паттерны:\
+  Azq2 \
+  marry_on_me \
+  Feyman
+- Паттерн поиска начала таблицы разметки дисков SGOLD/SGOLD2/ELKA: \
+  Feyman
+- FAT Timestamp: \
+  perk11
+- Патчи на увеличение диска EGOLD
+ (Помогли с анализом таблицы разметки диска):
+  kay \
+  AlexSid \
+  SiNgle \
+  Chaos \
+  avkiev \
+  Baloo
+- Smelter: \
+  avkiev
+- Тестирование: \
+  perk11 \
+  Feyman \
+  FIL \
+  maximuservice
