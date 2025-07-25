@@ -19,7 +19,7 @@
 ```
 Siemens filesystem extractor
   Version:           0.0.2-5bccd9b-unstable
-  libffshit version: 0.0.2-3358dc0-unstable
+  libffshit version: 0.0.2-7a921cf-unstable
 
 Usage:
   ./ffnightman [OPTION...] positional parameters
