@@ -7,7 +7,9 @@
 
 #include <iostream>
 #include <algorithm>
+
 #include <spdlog/spdlog.h>
+#include <spdlog/async.h>
 
 // на BSD это конечно же никто не проверял
 
@@ -42,6 +44,10 @@ Extractor::Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLAS
 }
 void Extractor::list() {
     spdlog::info("Listing filesystem");
+
+    while (spdlog::thread_pool()->queue_size() != 0) {
+        spdlog::default_logger()->flush();
+    }
 
     const auto root = filesystem->get_root();
 

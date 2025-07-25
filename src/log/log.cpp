@@ -27,6 +27,7 @@ static void setup_console_log() {
 #endif
 
     std::vector<spdlog::sink_ptr> sinks{stdout_sink};
+
     auto logger = std::make_shared<spdlog::async_logger>("ffshit_console", sinks.begin(), sinks.end(), spdlog::thread_pool(), spdlog::async_overflow_policy::block);
 
     logger->set_pattern(SPDLOG_LOG_PATTERN);
