@@ -30,6 +30,7 @@ int parse(int argc, char *argv[], Options &opts) {
     options.add_options()
         ("p,path", "Destination path. './<FF_file_name>_data' by default", cxxopts::value<std::string>())
         ("m,platform", "Specify platform (disable autodetect).\n[ " + supported_platforms + "]" , cxxopts::value<std::string>())
+        ("fs-platform", "Specify filesystem type (for fullflash from prototype by example).\n[ " + supported_platforms + "]" , cxxopts::value<std::string>())
         ("start-addr", "Partition search start address (hex)", cxxopts::value<std::string>())
         ("part", "Partition to extract (may be several)", cxxopts::value<std::vector<std::string>>())
         ("old", "Old search algorithm")
@@ -82,6 +83,18 @@ int parse(int argc, char *argv[], Options &opts) {
         }
 
         opts.override_platform = platform_raw;
+    }
+
+    if (parsed.count("fs-platform")) {
+        std::string platform_raw = parsed["fs-platform"].as<std::string>();
+
+        System::to_upper(platform_raw);
+
+        if (FULLFLASH::StringToPlatform.count(platform_raw) == 0) {
+            throw cxxopts::exceptions::exception(fmt::format("Unknown filesystem platform {}. See help", platform_raw));
+        }
+
+        opts.override_fs_platform = platform_raw;
     }
 
     if (parsed.count("p")) {

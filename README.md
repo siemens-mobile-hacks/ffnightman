@@ -18,29 +18,36 @@
 
 ```
 Siemens filesystem extractor
-  Version:           0.0.2-0b90a0c-unstable
-  libffshit version: 0.0.2-6ca41c6-unstable
+  Version:           0.0.2-5bccd9b-unstable
+  libffshit version: 0.0.2-3358dc0-unstable
 
 Usage:
-  ffnightman [OPTION...] positional parameters
+  ./ffnightman [OPTION...] positional parameters
 
-  -d, --debug           Enable debugging
-  -p, --path arg        Destination path. './<FF_file_name>_data' by 
-                        default
-  -m, --platform arg    Specify platform (disable autodetect).
-                        [ SGOLD2_ELKA SGOLD2 SGOLD EGOLD_CE ]
-  -l, --log             Save log to file '<dst_path>/extracting.log'
-      --dump            Dump data to debug output
-      --start-addr arg  Partition search start address (hex)
-      --part arg        Partition to extract (may be several)
-      --old             Old search algorithm
-  -f, --partitions      partitions search for debugging purposes only
-  -s, --scan            filesystem scanning for debugging purposes only
-  -o, --overwrite       Always delete data directory if exists
-      --skip            Skip broken file/directory
-      --skip-dup        Skip duplicate id
-      --skip-all        Enable all skip
-  -h, --help            Help
+  -p, --path arg         Destination path. './<FF_file_name>_data' by 
+                         default
+  -m, --platform arg     Specify platform (disable autodetect).
+                         [ SGOLD2_ELKA SGOLD2 SGOLD EGOLD_CE ]
+      --fs-platform arg  Specify filesystem type (for fullflash from 
+                         prototype by example).
+                         [ SGOLD2_ELKA SGOLD2 SGOLD EGOLD_CE ]
+      --start-addr arg   Partition search start address (hex)
+      --part arg         Partition to extract (may be several)
+      --old              Old search algorithm
+  -o, --overwrite        Always delete data directory if exists
+      --skip             Skip broken file/directory
+      --skip-dup         Skip duplicate id
+      --skip-all         Enable all skip
+      --ls               Only list content
+  -l, --log              Save log to file '<dst_path>/extracting.log'
+  -v, --verbose          Verbose level
+                         v   - Verbose processing
+                         vv  - Verbose headers
+                         vvv - Verbose data
+  -d, --debug            Verbose level = vvv
+  -f, --partitions       partitions search for debugging purposes only
+  -s, --scan             filesystem scanning for debugging purposes only
+  -h, --help             Help
   ```
 
 ## Бинарные и не очень сборки

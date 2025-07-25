@@ -200,14 +200,14 @@ int main(int argc, char *argv[]) {
             throw FULLFLASH::Exception("Unknown platform");
         }
 
-        spdlog::info("Platform: {}", FULLFLASH::PlatformToString.at(platform));
+        spdlog::info("Platform:    {}", FULLFLASH::PlatformToString.at(platform));
 
         if (model.length()) {
-            spdlog::info("Model:    {}", model);
+            spdlog::info("Model:       {}", model);
         }
 
         if (imei.length()) {
-            spdlog::info("IMEI:     {}", imei);
+            spdlog::info("IMEI:        {}", imei);
         }
 
         fullflash->load_partitions(options.is_old_search_algorithm, options.search_start_adddress);
@@ -222,6 +222,14 @@ int main(int argc, char *argv[]) {
 
         if (options.is_partitions_search_only) {
             return EXIT_SUCCESS;
+        }
+
+        if (options.override_fs_platform.length()) {
+            platform = FULLFLASH::StringToPlatform.at(options.override_platform);
+
+            spdlog::warn("FS platform: {}", FULLFLASH::PlatformToString.at(platform));
+        } else {
+            spdlog::info("FS platform: {}", FULLFLASH::PlatformToString.at(platform));
         }
 
         Extractor extractor(partitions, platform, options);

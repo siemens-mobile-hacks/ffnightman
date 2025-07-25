@@ -15,6 +15,7 @@ struct Options {
     std::filesystem::path       ff_path;
     std::string                 override_dst_path;
     std::string                 override_platform;
+    std::string                 override_fs_platform;
 
     std::vector<std::string>    parts_to_extract;
 
