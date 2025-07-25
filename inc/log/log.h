@@ -11,6 +11,7 @@ namespace Log {
 
 void init();
 void setup(std::filesystem::path dst_path = "");
+void flush_wait();
 
 };
 

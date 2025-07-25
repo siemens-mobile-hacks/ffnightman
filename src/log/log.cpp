@@ -71,4 +71,11 @@ void setup(std::filesystem::path dst_path) {
     }
 }
 
+void flush_wait() {
+    while (spdlog::thread_pool()->queue_size() != 0) {
+        spdlog::default_logger()->flush();
+    }
+}
+
+
 };

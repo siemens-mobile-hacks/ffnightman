@@ -5,8 +5,7 @@
 #include <ffshit/filesystem/platform/builder.h>
 #include <ffshit/filesystem/ex.h>
 
-#include <spdlog/spdlog.h>
-#include <spdlog/async.h>
+#include "log/log.h"
 
 #include <iostream>
 #include <algorithm>
@@ -59,9 +58,7 @@ void Extractor::list(std::string regexp) {
 
     spdlog::info("{}", list_msg);
 
-    while (spdlog::thread_pool()->queue_size() != 0) {
-        spdlog::default_logger()->flush();
-    }
+    Log::flush_wait();
 
     const auto root = filesystem->get_root();
 
