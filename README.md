@@ -38,7 +38,8 @@ Usage:
       --skip             Skip broken file/directory
       --skip-dup         Skip duplicate id
       --skip-all         Enable all skip
-      --ls               Only list content
+      --ls arg           Only list content. C++ regex compatible (default: 
+                         "")
   -l, --log              Save log to file '<dst_path>/extracting.log'
   -v, --verbose          Verbose level
                          v   - Verbose processing
