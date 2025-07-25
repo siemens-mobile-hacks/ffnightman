@@ -44,7 +44,7 @@ Extractor::Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLAS
     }
 }
 void Extractor::list(std::string regexp) {
-    spdlog::info("Listing filesystem {}", regexp);
+    std::string list_msg = "Listing filesystem";
 
     std::regex  r;
     bool        is_regex = false;
@@ -53,7 +53,11 @@ void Extractor::list(std::string regexp) {
         r = std::regex(regexp);
 
         is_regex = true;
+
+        list_msg += fmt::format(". Regexp: '{}'", regexp);
     }
+
+    spdlog::info("{}", list_msg);
 
     while (spdlog::thread_pool()->queue_size() != 0) {
         spdlog::default_logger()->flush();
