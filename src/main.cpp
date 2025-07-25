@@ -229,7 +229,13 @@ int main(int argc, char *argv[]) {
 
             spdlog::warn("FS platform: {}", FULLFLASH::PlatformToString.at(platform));
         } else {
-            spdlog::info("FS platform: {}", FULLFLASH::PlatformToString.at(platform));
+            if (partitions->get_fs_platform() != detector.get_platform()) {
+                platform = partitions->get_fs_platform();
+
+                spdlog::warn("FS platform: {}", FULLFLASH::PlatformToString.at(platform));
+            } else {
+                spdlog::info("FS platform: {}", FULLFLASH::PlatformToString.at(platform));
+            }
         }
 
         Extractor extractor(partitions, platform, options);
