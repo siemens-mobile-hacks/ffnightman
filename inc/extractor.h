@@ -12,14 +12,14 @@ class Extractor {
         Extractor() = delete;
         Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLASH::Platform platform, const CLI::Options &options);
 
-        void                                    list();
+        void                                    list(std::string regexp);
         void                                    extract(std::filesystem::path path, bool overwrite);
 
     private:
         FULLFLASH::Partitions::Partitions::Ptr  partitions;
         FULLFLASH::Filesystem::Base::Ptr        filesystem;
 
-        void                                    list_path(FULLFLASH::Filesystem::Directory::Ptr dir, std::string full_path);
+        void                                    list_path(FULLFLASH::Filesystem::Directory::Ptr dir, std::string full_path, bool is_regex, std::regex &r);
         void                                    unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::filesystem::path path);
 
         static std::string                      utf8_filename(std::string file_name);

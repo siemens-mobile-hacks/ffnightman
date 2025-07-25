@@ -2425,7 +2425,11 @@ OptionParser::checked_parse_arg
     }
     else
     {
-      throw_or_mimic<exceptions::missing_argument>(name);
+      if (value->value().has_default()) {
+        parse_option(value, name, value->value().get_default_value());
+      } else {
+        throw_or_mimic<exceptions::missing_argument>(name);
+      }
     }
   }
   else

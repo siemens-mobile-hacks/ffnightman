@@ -39,7 +39,7 @@ int parse(int argc, char *argv[], Options &opts) {
         ("skip", "Skip broken file/directory")
         ("skip-dup", "Skip duplicate id")
         ("skip-all", "Enable all skip")
-        ("ls", "Only list content")
+        ("ls", "Only list content. C++ regex compatible", cxxopts::value<std::string>()->default_value(""))
         ("l,log", "Save log to file '<dst_path>/extracting.log'")
         ("v,verbose", "Verbose level\nv   - Verbose processing\nvv  - Verbose headers\nvvv - Verbose data", cxxopts::value<bool>()->default_value("false"))
         ("d,debug", "Verbose level = vvv")
@@ -142,6 +142,8 @@ int parse(int argc, char *argv[], Options &opts) {
 
     if (parsed.count("ls")) {
         opts.is_list_only = true;
+
+        opts.ls_regex = parsed["ls"].as<std::string>(); 
     }
 
     if (parsed.count("d")) {

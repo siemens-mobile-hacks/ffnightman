@@ -5,11 +5,12 @@
 #include <ffshit/filesystem/platform/builder.h>
 #include <ffshit/filesystem/ex.h>
 
-#include <iostream>
-#include <algorithm>
-
 #include <spdlog/spdlog.h>
 #include <spdlog/async.h>
+
+#include <iostream>
+#include <algorithm>
+#include <regex>
 
 // на BSD это конечно же никто не проверял
 
@@ -42,8 +43,17 @@ Extractor::Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLAS
         throw FULLFLASH::Exception("fs == nullptr o_O");
     }
 }
-void Extractor::list() {
-    spdlog::info("Listing filesystem");
+void Extractor::list(std::string regexp) {
+    spdlog::info("Listing filesystem {}", regexp);
+
+    std::regex  r;
+    bool        is_regex = false;
+
+    if (regexp.length()) {
+        r = std::regex(regexp);
+
+        is_regex = true;
+    }
 
     while (spdlog::thread_pool()->queue_size() != 0) {
         spdlog::default_logger()->flush();
@@ -54,7 +64,7 @@ void Extractor::list() {
     for (const auto &disk_root : root->get_subdirs()) {
         const std::string &fs_name = disk_root->get_name();
 
-        list_path(disk_root, fs_name);
+        list_path(disk_root, fs_name, is_regex, r);
     }
 }
 
@@ -78,7 +88,7 @@ static std::string format_date_time(const FULLFLASH::Filesystem::TimePoint &time
     return ss.str();
 }
 
-void Extractor::list_path(FULLFLASH::Filesystem::Directory::Ptr dir, std::string full_path) {
+void Extractor::list_path(FULLFLASH::Filesystem::Directory::Ptr dir, std::string full_path, bool is_regex, std::regex &r) {
     const auto &subdirs = dir->get_subdirs();
     const auto &files   = dir->get_files();
 
@@ -87,13 +97,19 @@ void Extractor::list_path(FULLFLASH::Filesystem::Directory::Ptr dir, std::string
             continue;
         }
 
-        std::string             file_name = file->get_name();
+        std::string file_name = file->get_name();
 
-        std::string             str_attributes  = format_attributes(file->get_attributes());
-        std::string             str_date        = format_date_time(file->get_timestamp());
-        std::string             str_path        = fmt::format("{}/{}", full_path, file_name);
+        std::string str_attributes  = format_attributes(file->get_attributes());
+        std::string str_date        = format_date_time(file->get_timestamp());
+        std::string str_path        = fmt::format("{}/{}", full_path, file_name);
 
-        fmt::print("{} {} {:3d} {}\n", str_attributes, str_date, 1, str_path);
+        if (is_regex) {
+            if (std::regex_search(str_path, r)) {
+                fmt::print("{} {} {:3d} {}\n", str_attributes, str_date, 1, str_path);
+            }
+        } else {
+            fmt::print("{} {} {:3d} {}\n", str_attributes, str_date, 1, str_path);
+        }
     }
 
     for (const auto &subdir : subdirs) {
@@ -105,9 +121,15 @@ void Extractor::list_path(FULLFLASH::Filesystem::Directory::Ptr dir, std::string
         
         size_t                  items = subdir->get_files().size() + subdir->get_subdirs().size();
 
-        fmt::print("{} {} {:3d} {}\n", str_attributes, str_date, items, str_path);
+        if (is_regex) {
+            if (std::regex_search(str_path, r)) {
+                fmt::print("{} {} {:3d} {}\n", str_attributes, str_date, 1, str_path);
+            }
+        } else {
+            fmt::print("{} {} {:3d} {}\n", str_attributes, str_date, 1, str_path);
+        }
 
-        list_path(subdir, fmt::format("{}/{}", full_path, subdir->get_name()));
+        list_path(subdir, fmt::format("{}/{}", full_path, subdir->get_name()), is_regex, r);
     }
 }
 

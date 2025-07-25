@@ -246,7 +246,7 @@ int main(int argc, char *argv[]) {
             }
 
             if (options.is_list_only) {
-                extractor.list();
+                extractor.list(options.ls_regex);
             } else {
                 extractor.extract(data_path, options.is_overwrite);
             }

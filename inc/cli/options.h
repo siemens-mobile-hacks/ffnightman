@@ -27,6 +27,7 @@ struct Options {
     bool                        is_old_search_algorithm     = false;
     bool                        is_partitions_search_only   = false;
     bool                        is_list_only                = false;
+    std::string                 ls_regex;
     bool                        is_skip_broken              = false;
     bool                        is_skip_dup                 = false;
     bool                        is_dump_data                = false;
