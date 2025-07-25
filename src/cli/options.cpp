@@ -28,21 +28,22 @@ int parse(int argc, char *argv[], Options &opts) {
     cxxopts::Options options(argv[0], build_app_description());
 
     options.add_options()
-        ("d,debug", "Enable debugging")
         ("p,path", "Destination path. './<FF_file_name>_data' by default", cxxopts::value<std::string>())
         ("m,platform", "Specify platform (disable autodetect).\n[ " + supported_platforms + "]" , cxxopts::value<std::string>())
-        ("l,log", "Save log to file '<dst_path>/extracting.log'")
-        ("dump", "Dump data to debug output")
         ("start-addr", "Partition search start address (hex)", cxxopts::value<std::string>())
         ("part", "Partition to extract (may be several)", cxxopts::value<std::vector<std::string>>())
         ("old", "Old search algorithm")
         ("ffpath", "fullflash path", cxxopts::value<std::string>())
-        ("f,partitions", "partitions search for debugging purposes only")
-        ("s,scan", "filesystem scanning for debugging purposes only")
         ("o,overwrite", "Always delete data directory if exists")
         ("skip", "Skip broken file/directory")
         ("skip-dup", "Skip duplicate id")
         ("skip-all", "Enable all skip")
+        ("ls", "Only list content")
+        ("l,log", "Save log to file '<dst_path>/extracting.log'")
+        ("v,verbose", "Verbose level\nv   - Verbose processing\nvv  - Verbose headers\nvvv - Verbose data", cxxopts::value<bool>()->default_value("false"))
+        ("d,debug", "Verbose level = vvv")
+        ("f,partitions", "partitions search for debugging purposes only")
+        ("s,scan", "filesystem scanning for debugging purposes only")
         ("h,help", "Help");
 
     options.parse_positional({"ffpath"});
@@ -54,6 +55,8 @@ int parse(int argc, char *argv[], Options &opts) {
 
         return EXIT_OK;
     }
+
+    int verbose_level = parsed.count("v");
 
     if (!parsed.count("ffpath")) {
         spdlog::error("Please specify fullflash path");
@@ -67,10 +70,6 @@ int parse(int argc, char *argv[], Options &opts) {
 
     if (parsed.count("l")) {
         opts.is_log_to_file = true;
-    }
-
-    if (parsed.count("d")) {
-        opts.is_debug = true;
     }
 
     if (parsed.count("m")) {
@@ -128,8 +127,20 @@ int parse(int argc, char *argv[], Options &opts) {
         opts.parts_to_extract = parsed["part"].as<std::vector<std::string>>();
     }
 
-    if (parsed.count("dump")) {
-        opts.is_dump_data = true;
+    if (parsed.count("ls")) {
+        opts.is_list_only = true;
+    }
+
+    if (parsed.count("d")) {
+        verbose_level = 3;
+    }
+
+    switch(verbose_level) {
+        case 0: break;
+        default:
+        case 3: opts.verbose_data       = true;
+        case 2: opts.verbose_headers    = true;
+        case 1: opts.verbose_processing = true;
     }
 
     return CONTINUE;

@@ -144,7 +144,7 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    if (options.is_debug) {
+    if (options.verbose_headers || options.verbose_data) {
         spdlog::set_level(spdlog::level::debug);
     }
 
@@ -170,7 +170,7 @@ int main(int argc, char *argv[]) {
 
             Log::setup(data_path);
 
-            if (options.is_debug) {
+            if (options.verbose_headers || options.verbose_data) {
                 spdlog::set_level(spdlog::level::debug);
             }
         }
@@ -214,7 +214,7 @@ int main(int argc, char *argv[]) {
 
         partitions = fullflash->get_partitions();
 
-        if (options.is_debug) {
+        if (options.verbose_headers) {
             dump_partitions_info(*partitions);
         } else {
             dump_partitions_short(*partitions);
@@ -229,13 +229,17 @@ int main(int argc, char *argv[]) {
         if (!options.is_filesystem_scan_only) {
             spdlog::info("Destination path: {}", data_path.string());
 
-            if (!options.is_log_to_file) {
+            if (!options.is_log_to_file && !options.is_list_only) {
                 if (!setup_destination_path(data_path, options.is_overwrite)) {
                     return EXIT_SUCCESS;
                 }
             }
 
-            extractor.extract(data_path, options.is_overwrite);
+            if (options.is_list_only) {
+                extractor.list();
+            } else {
+                extractor.extract(data_path, options.is_overwrite);
+            }
         }
 
         spdlog::info("Done");

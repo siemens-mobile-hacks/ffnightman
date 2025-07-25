@@ -18,11 +18,14 @@ struct Options {
 
     std::vector<std::string>    parts_to_extract;
 
-    bool                        is_debug                    = false;
+    bool                        verbose_processing          = false;
+    bool                        verbose_headers             = false;
+    bool                        verbose_data                = false;
     bool                        is_overwrite                = false;
     bool                        is_filesystem_scan_only     = false;
     bool                        is_old_search_algorithm     = false;
     bool                        is_partitions_search_only   = false;
+    bool                        is_list_only                = false;
     bool                        is_skip_broken              = false;
     bool                        is_skip_dup                 = false;
     bool                        is_dump_data                = false;
