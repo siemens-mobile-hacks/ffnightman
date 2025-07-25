@@ -235,7 +235,9 @@ int main(int argc, char *argv[]) {
         Extractor extractor(partitions, platform, options);
 
         if (!options.is_filesystem_scan_only) {
-            spdlog::info("Destination path: {}", data_path.string());
+            if (!options.is_list_only) {
+                spdlog::info("Destination path: {}", data_path.string());
+            }
 
             if (!options.is_log_to_file && !options.is_list_only) {
                 if (!setup_destination_path(data_path, options.is_overwrite)) {
