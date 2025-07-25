@@ -275,12 +275,14 @@ int main(int argc, char *argv[]) {
         spdlog::error("Filesystem error: '{}' '{}' {}", e.path1().string(), e.path2().string(), e.what());
 
         return EXIT_FAILURE;
+    } catch (const std::regex_error &e) {
+        spdlog::error("Regexp error: {}", e.what());
+
+		 return EXIT_FAILURE;
     } catch (const std::exception &e) {
         spdlog::error("{}", e.what());
 
         return EXIT_FAILURE;
-    } catch (const std::regex_error &e) {
-        spdlog::error("Regexp error: {}", e.what());
     }
 
     return EXIT_SUCCESS;
