@@ -225,7 +225,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (options.override_fs_platform.length()) {
-            platform = FULLFLASH::StringToPlatform.at(options.override_platform);
+            platform = FULLFLASH::StringToPlatform.at(options.override_fs_platform);
 
             spdlog::warn("FS platform: {}", FULLFLASH::PlatformToString.at(platform));
         } else {
