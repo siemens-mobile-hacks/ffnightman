@@ -27,25 +27,33 @@ int parse(int argc, char *argv[], Options &opts) {
 
     cxxopts::Options options(argv[0], build_app_description());
 
-    options.add_options()
+    options.add_options("Extraction")
         ("p,path", "Destination path. './<FF_file_name>_data' by default", cxxopts::value<std::string>())
-        ("m,platform", "Specify platform (disable autodetect).\n[ " + supported_platforms + "]" , cxxopts::value<std::string>())
-        ("fs-platform", "Specify filesystem type (for fullflash from prototype by example).\n[ " + supported_platforms + "]" , cxxopts::value<std::string>())
-        ("start-addr", "Partition search start address (hex)", cxxopts::value<std::string>())
-        ("part", "Partition to extract (may be several)", cxxopts::value<std::vector<std::string>>())
-        ("old", "Old search algorithm")
-        ("ffpath", "fullflash path", cxxopts::value<std::string>())
         ("o,overwrite", "Always delete data directory if exists")
+        ("ffpath", "fullflash path", cxxopts::value<std::string>())
         ("skip", "Skip broken file/directory")
         ("skip-dup", "Skip duplicate id")
-        ("skip-all", "Enable all skip")
-        ("ls", "List content whose path matches the regexp. C++ regex compatible", cxxopts::value<std::string>()->default_value(""))
-        ("regexp", "Extract content whose path matches the regexp. C++ regex compatible", cxxopts::value<std::string>()->default_value(""))
+        ("skip-all", "Enable all skip\n")
+        ("part", "Partition to extract (may be several)", cxxopts::value<std::vector<std::string>>())
+        ("regexp", "Extract content whose path matches the regexp. C++ regex compatible", cxxopts::value<std::string>()->default_value(""));
+
+    options.add_options("Partitions search")
+        ("m,platform", "Specify platform (disable autodetect).\n[ " + supported_platforms + "]" , cxxopts::value<std::string>())
+        ("start-addr", "Partition search start address (hex)", cxxopts::value<std::string>())
+        ("old", "Old search algorithm")
+        ("part-scan", "partitions search for debugging purposes only");
+
+    options.add_options("Filesystem")
+        ("f,fs-platform", "Specify filesystem type (for fullflash from prototype by example).\n[ " + supported_platforms + "]" , cxxopts::value<std::string>())
+        ("fs-scan", "filesystem scanning for debugging purposes only");
+
+    options.add_options("Listing")
+        ("ls", "List content whose path matches the regexp. C++ regex compatible", cxxopts::value<std::string>()->default_value(""));
+
+    options.add_options("Logging")
         ("l,log", "Save log to file '<dst_path>/extracting.log'")
         ("v,verbose", "Verbose level\nv   - Verbose processing\nvv  - Verbose headers\nvvv - Verbose data", cxxopts::value<bool>()->default_value("false"))
         ("d,debug", "Verbose level = vvv")
-        ("f,partitions", "partitions search for debugging purposes only")
-        ("s,scan", "filesystem scanning for debugging purposes only")
         ("h,help", "Help");
 
     options.parse_positional({"ffpath"});
@@ -106,7 +114,7 @@ int parse(int argc, char *argv[], Options &opts) {
         opts.is_overwrite = true;
     }
 
-    if (parsed.count("s")) {
+    if (parsed.count("fs-scan")) {
         opts.is_filesystem_scan_only = true;
     }
 
@@ -114,7 +122,7 @@ int parse(int argc, char *argv[], Options &opts) {
         opts.is_old_search_algorithm = true;
     }
 
-    if (parsed.count("f")) {
+    if (parsed.count("part-scan")) {
         opts.is_partitions_search_only = true;
     }
 
