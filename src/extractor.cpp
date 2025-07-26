@@ -89,7 +89,7 @@ static std::string format_date_time(const FULLFLASH::Filesystem::TimePoint &time
     return ss.str();
 }
 
-void Extractor::list_path(FULLFLASH::Filesystem::Directory::Ptr dir, std::string full_path, bool is_regex, std::regex &r) {
+void Extractor::list_path(FULLFLASH::Filesystem::Directory::Ptr dir, std::string full_path, bool is_regex, std::regex &regexp) {
     const auto &subdirs = dir->get_subdirs();
     const auto &files   = dir->get_files();
 
@@ -105,7 +105,7 @@ void Extractor::list_path(FULLFLASH::Filesystem::Directory::Ptr dir, std::string
         std::string str_path        = fmt::format("{}/{}", full_path, file_name);
 
         if (is_regex) {
-            if (std::regex_search(str_path, r)) {
+            if (std::regex_search(str_path, regexp)) {
                 fmt::print("{} {} {:3d} {}\n", str_attributes, str_date, 1, str_path);
             }
         } else {
@@ -123,20 +123,33 @@ void Extractor::list_path(FULLFLASH::Filesystem::Directory::Ptr dir, std::string
         size_t                  items = subdir->get_files().size() + subdir->get_subdirs().size();
 
         if (is_regex) {
-            if (std::regex_search(str_path, r)) {
+            if (std::regex_search(str_path, regexp)) {
                 fmt::print("{} {} {:3d} {}\n", str_attributes, str_date, 1, str_path);
             }
         } else {
             fmt::print("{} {} {:3d} {}\n", str_attributes, str_date, 1, str_path);
         }
 
-        list_path(subdir, fmt::format("{}/{}", full_path, subdir->get_name()), is_regex, r);
+        list_path(subdir, fmt::format("{}/{}", full_path, subdir->get_name()), is_regex, regexp);
     }
 }
 
-void Extractor::extract(std::filesystem::path path, bool overwrite) {
-    spdlog::info("Extracting filesystem");
+void Extractor::extract(std::filesystem::path path, std::string regexp, bool overwrite) {
+    std::string extract_msg = "Extracting filesystem";
 
+    std::regex  r;
+    bool        is_regex = false;
+
+    if (regexp.length()) {
+        r = std::regex(regexp);
+
+        is_regex = true;
+
+        extract_msg += fmt::format(". Regexp: '{}'", regexp);
+    }
+
+    spdlog::info("{}", extract_msg);
+ 
     const auto root = filesystem->get_root();
 
     for (const auto &disk_root : root->get_subdirs()) {
@@ -147,7 +160,7 @@ void Extractor::extract(std::filesystem::path path, bool overwrite) {
         std::filesystem::path dir(path);
         dir.append(fs_name);
 
-        unpack(disk_root, dir);
+        unpack(disk_root, fs_name, dir, is_regex, r);
     }
 }
 
@@ -279,7 +292,7 @@ void Extractor::check_unacceptable_symols(std::string &file_name) {
 }
 
 
-void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::filesystem::path path) {
+void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::string full_path, std::filesystem::path path, bool is_regex, std::regex &regexp) {
     if (System::is_directory_exists(path)) {
         static size_t dbl_counter = 0;
 
@@ -318,6 +331,12 @@ void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::filesyste
 
         file_path.append(file_name);
 
+        std::string str_path = fmt::format("{}/{}", full_path, file_name);
+
+        if (is_regex && !std::regex_search(str_path, regexp)) {
+            continue;
+        }
+
         spdlog::info("  File      {}", file_path.string());
 
         file_stream.open(file_path, std::ios_base::binary | std::ios_base::trunc);
@@ -346,9 +365,11 @@ void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::filesyste
 
         dir.append(subdir_name);
 
+        std::string str_path = fmt::format("{}/{}", full_path, subdir_name);
+
         spdlog::info("  Directory {}", dir.string());
 
-        unpack(subdir, dir);
+        unpack(subdir, str_path, dir, is_regex, regexp);
     }
 
     auto timestamp = dir->get_timestamp();

@@ -32,6 +32,7 @@ struct Options {
     bool                        is_skip_dup                 = false;
     bool                        is_dump_data                = false;
     bool                        is_log_to_file              = false;
+    std::string                 regexp;
     uint32_t                    search_start_adddress       = 0;
 };
 
