@@ -27,10 +27,12 @@ int parse(int argc, char *argv[], Options &opts) {
 
     cxxopts::Options options(argv[0], build_app_description());
 
+    options.add_options()
+        ("ffpath", "fullflash path", cxxopts::value<std::string>());
+
     options.add_options("Extraction")
         ("p,path", "Destination path. './<FF_file_name>_data' by default", cxxopts::value<std::string>())
         ("o,overwrite", "Always delete data directory if exists")
-        ("ffpath", "fullflash path", cxxopts::value<std::string>())
         ("skip", "Skip broken file/directory")
         ("skip-dup", "Skip duplicate id")
         ("skip-all", "Enable all skip\n")

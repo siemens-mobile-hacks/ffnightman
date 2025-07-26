@@ -2898,7 +2898,11 @@ Options::help(const std::vector<std::string>& help_groups, bool print_usage) con
   }
 
   if (!m_positional.empty() && !m_positional_help.empty()) {
-    result += " " + toLocalString(m_positional_help);
+    // result += " " + toLocalString(m_positional_help);
+
+    for (const auto &name : this->m_positional) {
+      result += " <" + name + ">";
+    }
   }
 
   result += "\n\n";
