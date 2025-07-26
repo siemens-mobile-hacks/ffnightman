@@ -160,7 +160,13 @@ void Extractor::extract(std::filesystem::path path, std::string regexp, bool ove
         std::filesystem::path dir(path);
         dir.append(fs_name);
 
-        unpack(disk_root, fs_name, dir, is_regex, r);
+        size_t extracted_count = unpack(disk_root, fs_name, dir, is_regex, r);
+
+        if (is_regex && extracted_count == 0) {
+            std::error_code error_code;
+
+            System::remove_directory(dir, error_code);
+        }
     }
 }
 
@@ -292,7 +298,7 @@ void Extractor::check_unacceptable_symols(std::string &file_name) {
 }
 
 
-void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::string full_path, std::filesystem::path path, bool is_regex, std::regex &regexp) {
+size_t Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::string full_path, std::filesystem::path path, bool is_regex, std::regex &regexp) {
     if (System::is_directory_exists(path)) {
         static size_t dbl_counter = 0;
 
@@ -317,6 +323,8 @@ void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::string fu
     const auto &subdirs = dir->get_subdirs();
     const auto &files   = dir->get_files();
 
+    size_t files_count = 0;
+
     for (const auto &file : files) {
         if (file->get_name().length() == 0) {
             continue;
@@ -336,6 +344,8 @@ void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::string fu
         if (is_regex && !std::regex_search(str_path, regexp)) {
             continue;
         }
+
+        ++files_count;
 
         spdlog::info("  File      {}", file_path.string());
 
@@ -369,11 +379,19 @@ void Extractor::unpack(FULLFLASH::Filesystem::Directory::Ptr dir, std::string fu
 
         spdlog::info("  Directory {}", dir.string());
 
-        unpack(subdir, str_path, dir, is_regex, regexp);
+        size_t extracted_count = unpack(subdir, str_path, dir, is_regex, regexp);
+
+        files_count += extracted_count;
+
+        if (is_regex && extracted_count == 0) {
+            System::remove_directory(dir, error_code);
+        }
     }
 
     auto timestamp = dir->get_timestamp();
     set_time(path, timestamp);
+
+    return files_count;
 }
 
 void Extractor::set_time(const std::filesystem::path &path, const FULLFLASH::Filesystem::TimePoint &timestamp) {
