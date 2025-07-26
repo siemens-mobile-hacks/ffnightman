@@ -22,33 +22,44 @@ Siemens filesystem extractor
   libffshit version: 0.0.2-de54343-unstable
 
 Usage:
-  ./ffnightman [OPTION...] positional parameters
+  ./ffnightman [OPTION...] <ffpath>
 
-  -p, --path arg         Destination path. './<FF_file_name>_data' by 
-                         default
-  -m, --platform arg     Specify platform (disable autodetect).
-                         [ SGOLD2_ELKA SGOLD2 SGOLD EGOLD_CE ]
-      --fs-platform arg  Specify filesystem type (for fullflash from 
+ Extraction options:
+  -p, --path arg    Destination path. './<FF_file_name>_data' by default
+  -o, --overwrite   Always delete data directory if exists
+      --skip        Skip broken file/directory
+      --skip-dup    Skip duplicate id
+      --skip-all    Enable all skip
+                    
+      --part arg    Partition to extract (may be several)
+      --regexp arg  Extract content whose path matches the regexp. C++ 
+                    regex compatible (default: "")
+
+ Partitions search options:
+  -m, --platform arg    Specify platform (disable autodetect).
+                        [ SGOLD2_ELKA SGOLD2 SGOLD EGOLD_CE ]
+      --start-addr arg  Partition search start address (hex)
+      --old             Old search algorithm
+      --part-scan       partitions search for debugging purposes only
+
+ Filesystem options:
+  -f, --fs-platform arg  Specify filesystem type (for fullflash from 
                          prototype by example).
                          [ SGOLD2_ELKA SGOLD2 SGOLD EGOLD_CE ]
-      --start-addr arg   Partition search start address (hex)
-      --part arg         Partition to extract (may be several)
-      --old              Old search algorithm
-  -o, --overwrite        Always delete data directory if exists
-      --skip             Skip broken file/directory
-      --skip-dup         Skip duplicate id
-      --skip-all         Enable all skip
-      --ls arg           Only list content. C++ regex compatible (default: 
-                         "")
-  -l, --log              Save log to file '<dst_path>/extracting.log'
-  -v, --verbose          Verbose level
-                         v   - Verbose processing
-                         vv  - Verbose headers
-                         vvv - Verbose data
-  -d, --debug            Verbose level = vvv
-  -f, --partitions       partitions search for debugging purposes only
-  -s, --scan             filesystem scanning for debugging purposes only
-  -h, --help             Help
+      --fs-scan          filesystem scanning for debugging purposes only
+
+ Listing options:
+      --ls arg  List content whose path matches the regexp. C++ regex 
+                compatible (default: "")
+
+ Logging options:
+  -l, --log      Save log to file '<dst_path>/extracting.log'
+  -v, --verbose  Verbose level
+                 v   - Verbose processing
+                 vv  - Verbose headers
+                 vvv - Verbose data
+  -d, --debug    Verbose level = vvv
+  -h, --help     Help
   ```
 
 ## Бинарные и не очень сборки
