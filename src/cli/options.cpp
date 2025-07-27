@@ -2,7 +2,7 @@
 
 #include <ffshit/system.h>
 #include <ffshit/version.h>
-#include <ffshit/filesystem/platform/types.h>
+#include <ffshit/platform/types.h>
 
 #include <fmt/format.h>
 
@@ -21,7 +21,7 @@ static std::string build_app_description() {
 int parse(int argc, char *argv[], Options &opts) {
     std::string supported_platforms;
 
-    for (const auto &platform : FULLFLASH::StringToPlatform) {
+    for (const auto &platform : FULLFLASH::Platform::StringToType) {
         supported_platforms += fmt::format("{} ", platform.first);
     }
 
@@ -89,7 +89,7 @@ int parse(int argc, char *argv[], Options &opts) {
 
         System::to_upper(platform_raw);
 
-        if (FULLFLASH::StringToPlatform.count(platform_raw) == 0) {
+        if (FULLFLASH::Platform::StringToType.count(platform_raw) == 0) {
             throw cxxopts::exceptions::exception(fmt::format("Unknown platform {}. See help", platform_raw));
         }
 
@@ -101,7 +101,7 @@ int parse(int argc, char *argv[], Options &opts) {
 
         System::to_upper(platform_raw);
 
-        if (FULLFLASH::StringToPlatform.count(platform_raw) == 0) {
+        if (FULLFLASH::Platform::StringToType.count(platform_raw) == 0) {
             throw cxxopts::exceptions::exception(fmt::format("Unknown filesystem platform {}. See help", platform_raw));
         }
 

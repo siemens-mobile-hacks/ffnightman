@@ -10,7 +10,7 @@
 class Extractor {
     public:
         Extractor() = delete;
-        Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLASH::Platform platform, const CLI::Options &options);
+        Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLASH::Platform::Type platform, const CLI::Options &options);
 
         void                                    list(std::string regexp);
         void                                    extract(std::filesystem::path path, std::string regexp, bool overwrite);

@@ -23,7 +23,7 @@
 
 static size_t broken_name_counter = 0;
 
-Extractor::Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLASH::Platform platform, const CLI::Options &options) :
+Extractor::Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLASH::Platform::Type platform, const CLI::Options &options) :
     partitions(partitions) {
     
     if (!partitions) {

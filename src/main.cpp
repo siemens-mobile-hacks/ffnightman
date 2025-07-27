@@ -175,7 +175,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        FULLFLASH::Platform                     platform;
+        FULLFLASH::Platform::Type               platform;
         FULLFLASH::FULLFLASH::Ptr               fullflash;
         FULLFLASH::Partitions::Partitions::Ptr  partitions;
 
@@ -183,7 +183,7 @@ int main(int argc, char *argv[]) {
         std::string model;
 
         if (options.override_platform.length()) {
-            platform    = FULLFLASH::StringToPlatform.at(options.override_platform);
+            platform    = FULLFLASH::Platform::StringToType.at(options.override_platform);
     
             fullflash = FULLFLASH::FULLFLASH::build(options.ff_path, platform);
         } else {
@@ -196,11 +196,11 @@ int main(int argc, char *argv[]) {
         imei        = detector.get_imei();
         platform    = detector.get_platform();
 
-        if (platform == FULLFLASH::Platform::UNK) {
+        if (platform == FULLFLASH::Platform::Type::UNK) {
             throw FULLFLASH::Exception("Unknown platform");
         }
 
-        spdlog::info("Platform:    {}", FULLFLASH::PlatformToString.at(platform));
+        spdlog::info("Platform:    {}", FULLFLASH::Platform::TypeToString.at(platform));
 
         if (model.length()) {
             spdlog::info("Model:       {}", model);
@@ -225,16 +225,16 @@ int main(int argc, char *argv[]) {
         }
 
         if (options.override_fs_platform.length()) {
-            platform = FULLFLASH::StringToPlatform.at(options.override_fs_platform);
+            platform = FULLFLASH::Platform::StringToType.at(options.override_fs_platform);
 
-            spdlog::warn("FS platform: {}", FULLFLASH::PlatformToString.at(platform));
+            spdlog::warn("FS platform: {}", FULLFLASH::Platform::TypeToString.at(platform));
         } else {
             if (partitions->get_fs_platform() != detector.get_platform()) {
                 platform = partitions->get_fs_platform();
 
-                spdlog::warn("FS platform: {}", FULLFLASH::PlatformToString.at(platform));
+                spdlog::warn("FS platform: {}", FULLFLASH::Platform::TypeToString.at(platform));
             } else {
-                spdlog::info("FS platform: {}", FULLFLASH::PlatformToString.at(platform));
+                spdlog::info("FS platform: {}", FULLFLASH::Platform::TypeToString.at(platform));
             }
         }
 
