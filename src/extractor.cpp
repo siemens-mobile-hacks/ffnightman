@@ -42,6 +42,10 @@ Extractor::Extractor(FULLFLASH::Partitions::Partitions::Ptr partitions, FULLFLAS
         throw FULLFLASH::Exception("fs == nullptr o_O");
     }
 }
+FULLFLASH::Filesystem::Base::Ptr Extractor::get_filesystem() const {
+    return filesystem;
+}
+
 void Extractor::list(std::string regexp) {
     std::string list_msg = "Listing filesystem";
 

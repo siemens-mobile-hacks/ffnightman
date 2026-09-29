@@ -29,6 +29,7 @@ set(SRC_LIST
     src/log/log.cpp
     src/cli/options.cpp
     src/extractor.cpp
+    src/writer.cpp
     src/main.cpp)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")

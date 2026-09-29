@@ -1,0 +1,4 @@
+node_modules/
+# symlinks to a pmb887x-emu build and a fullflash collection, see README.md
+.emu
+fullflashes

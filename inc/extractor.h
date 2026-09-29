@@ -15,6 +15,8 @@ class Extractor {
         void                                    list(std::string regexp);
         void                                    extract(std::filesystem::path path, std::string regexp, bool overwrite);
 
+        FULLFLASH::Filesystem::Base::Ptr        get_filesystem() const;
+
     private:
         FULLFLASH::Partitions::Partitions::Ptr  partitions;
         FULLFLASH::Filesystem::Base::Ptr        filesystem;

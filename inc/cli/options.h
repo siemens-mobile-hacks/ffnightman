@@ -9,6 +9,19 @@
 
 namespace CLI {
 
+// A change to the filesystem, as given on the command line
+struct Write {
+    enum class Action {
+        PUT,
+        MKDIR,
+        RM,
+    };
+
+    Action                      action;
+    // "<local path>:<path>" for PUT, the path for the others
+    std::string                 argument;
+};
+
 struct Options {
     Options() = default;
 
@@ -34,6 +47,10 @@ struct Options {
     bool                        is_log_to_file              = false;
     std::string                 regexp;
     uint32_t                    search_start_adddress       = 0;
+
+    // In the order they were given
+    std::vector<Write>          writes;
+    std::string                 out_path;
 };
 
 constexpr const int EXIT_OK     = EXIT_SUCCESS;

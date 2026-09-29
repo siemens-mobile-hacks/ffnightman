@@ -1,0 +1,18 @@
+{
+    "name": "ffnightman-e2e",
+    "private": true,
+    "description": "Writes files into fullflashes with ffnightman, boots them in pmb887x-emu and downloads the files over OBEX",
+    "type": "module",
+    "scripts": {
+        "test": "vitest run",
+        "typecheck": "tsc --noEmit"
+    },
+    "devDependencies": {
+        "@serialport/stream": "^13.0.0",
+        "@sie-js/serial": "^1.5.2",
+        "@types/node": "^22.20.4",
+        "serialport-bindings-socket": "^1.0.4",
+        "typescript": "^5.9.3",
+        "vitest": "^3.2.7"
+    }
+}

@@ -8,6 +8,7 @@
 #include "log/log.h"
 #include "cli/options.h"
 #include "extractor.h"
+#include "writer.h"
 #include "help.h"
 #include <csignal>
 
@@ -240,7 +241,16 @@ int main(int argc, char *argv[]) {
 
         Extractor extractor(partitions, platform, options);
 
-        if (!options.is_filesystem_scan_only) {
+        if (!options.writes.empty()) {
+            Writer writer(fullflash, extractor.get_filesystem());
+
+            writer.write(options.writes);
+            writer.save(options.out_path);
+
+            if (options.is_list_only) {
+                extractor.list(options.ls_regex);
+            }
+        } else if (!options.is_filesystem_scan_only) {
             if (!options.is_list_only) {
                 spdlog::info("Destination path: {}", data_path.string());
             }

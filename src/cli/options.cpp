@@ -52,6 +52,12 @@ int parse(int argc, char *argv[], Options &opts) {
     options.add_options("Listing")
         ("ls", "List content whose path matches the regexp. C++ regex compatible", cxxopts::value<std::string>()->default_value(""));
 
+    options.add_options("Writing")
+        ("put", "Write a local file into the filesystem, replacing a file of that name: <local path>:<path>, e.g. photo.jpg:FFS_0/Pictures/photo.jpg", cxxopts::value<std::string>())
+        ("mkdir", "Create a directory, e.g. FFS_0/Pictures/Holidays", cxxopts::value<std::string>())
+        ("rm", "Remove a file or an empty directory", cxxopts::value<std::string>())
+        ("out", "Save the changed fullflash to this file. Needed by --put, --mkdir and --rm, which may be given several times and run in the order given", cxxopts::value<std::string>());
+
     options.add_options("Logging")
         ("l,log", "Save log to file '<dst_path>/extracting.log'")
         ("v,verbose", "Verbose level\nv   - Verbose processing\nvv  - Verbose headers\nvvv - Verbose data", cxxopts::value<bool>()->default_value("false"))
@@ -159,6 +165,28 @@ int parse(int argc, char *argv[], Options &opts) {
 
     if (parsed.count("regexp")) {
         opts.regexp = parsed["regexp"].as<std::string>();
+    }
+
+    for (const auto &argument : parsed.arguments()) {
+        if (argument.key() == "put") {
+            opts.writes.push_back({ Write::Action::PUT, argument.value() });
+        } else if (argument.key() == "mkdir") {
+            opts.writes.push_back({ Write::Action::MKDIR, argument.value() });
+        } else if (argument.key() == "rm") {
+            opts.writes.push_back({ Write::Action::RM, argument.value() });
+        }
+    }
+
+    if (parsed.count("out")) {
+        opts.out_path = parsed["out"].as<std::string>();
+    }
+
+    if (!opts.writes.empty() && opts.out_path.empty()) {
+        throw cxxopts::exceptions::exception("--put, --mkdir and --rm need --out");
+    }
+
+    if (opts.writes.empty() && !opts.out_path.empty()) {
+        throw cxxopts::exceptions::exception("--out saves what --put, --mkdir and --rm change, and there is none of them");
     }
 
     if (parsed.count("d")) {

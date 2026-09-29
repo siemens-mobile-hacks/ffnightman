@@ -1,7 +1,7 @@
 # Siemens filesystem extractor
 
 #### Щито это
-Тулза, позволяет извлекать содержимое файловой системы из FULLFLASH
+Тулза, позволяет извлекать содержимое файловой системы из FULLFLASH и записывать в неё
 
 ##### Поддерживаемые платформы:
 - SGOLD
@@ -9,7 +9,7 @@
 - SGOLD2 ELKA \
 Требует тестирования
 - EGOLD с Card-Explorer \
-Требует тестирования
+Требует тестирования. Только извлечение
 
 ## Как это использовать
 ```./ffnightman <options> <fullflash path>```
@@ -52,6 +52,16 @@ Usage:
       --ls arg  List content whose path matches the regexp. C++ regex 
                 compatible (default: "")
 
+ Writing options:
+      --put arg    Write a local file into the filesystem, replacing a file 
+                   of that name: <local path>:<path>, e.g. 
+                   photo.jpg:FFS_0/Pictures/photo.jpg
+      --mkdir arg  Create a directory, e.g. FFS_0/Pictures/Holidays
+      --rm arg     Remove a file or an empty directory
+      --out arg    Save the changed fullflash to this file. Needed by 
+                   --put, --mkdir and --rm, which may be given several 
+                   times and run in the order given
+
  Logging options:
   -l, --log      Save log to file '<dst_path>/extracting.log'
   -v, --verbose  Verbose level
@@ -61,6 +71,18 @@ Usage:
   -d, --debug    Verbose level = vvv
   -h, --help     Help
   ```
+
+### Запись
+`--put` записывает файл в файловую систему, заменяя файл с тем же именем, `--mkdir` создаёт каталог, `--rm` удаляет файл или пустой каталог. Пути начинаются с имени раздела, как в выводе `--ls`, регистр букв в именах не различается — как и в телефоне. Каждый параметр можно указать несколько раз, они выполняются в том порядке, в каком указаны, а изменённый фуллфлеш сохраняется в файл из `--out`:
+
+```
+./ffnightman --mkdir FFS_0/Pictures/Holidays --put photo.jpg:FFS_0/Pictures/Holidays/photo.jpg --out new.bin ff.bin
+```
+
+Запись поддерживается для SGOLD, SGOLD2 и SGOLD2 ELKA. На SGOLD имена могут содержать только символы ASCII. Если что-то записать не удалось — нет места, нет каталога, — ffnightman ничего не сохраняет.
+
+## Тесты
+[tests/e2e](tests/e2e/README.md): записывают файлы в фуллфлеши, загружают телефоны с ними в эмуляторе pmb887x-emu и скачивают файлы по OBEX.
 
 ## Бинарные и не очень сборки
 - Ubuntu 24.04: см. Releases
